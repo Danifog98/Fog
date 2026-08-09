@@ -1,6 +1,6 @@
 # FOG — web
 
-Web estática de la marca: HTML, CSS y JavaScript sin dependencias, sin build y
+Web estática de la marca, publicada en **fog.shop**: HTML, CSS y JavaScript sin dependencias, sin build y
 sin conexiones externas. Se abre haciendo doble clic en `index.html` o se sube
 tal cual a cualquier hosting (GitHub Pages, Netlify, Vercel, un FTP…).
 
@@ -50,6 +50,23 @@ la web lo coge sin tocar código. Nomenclatura:
 
 **Cabecera, pie, carrito y ficha rápida** están repetidos en los cuatro HTML: si
 cambias un enlace del menú, cámbialo en los cuatro archivos.
+
+## Dominio y publicación
+
+El archivo `CNAME` de la raíz fija el dominio (`fog.shop`) y el flujo
+`.github/workflows/pages.yml` publica el repositorio en GitHub Pages con cada
+cambio en `main`. En el proveedor del dominio tienen que existir estos registros:
+
+| Tipo | Nombre | Valor |
+| --- | --- | --- |
+| A | @ | 185.199.108.153 |
+| A | @ | 185.199.109.153 |
+| A | @ | 185.199.110.153 |
+| A | @ | 185.199.111.153 |
+| CNAME | www | danifog98.github.io |
+
+Si algún día cambia el dominio, hay que tocar tres sitios: `CNAME`, la constante
+`SITE` de las URL canónicas en las cuatro páginas y el correo de contacto.
 
 ## Lo que falta para vender de verdad
 
