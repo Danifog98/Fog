@@ -1,5 +1,5 @@
 /* =========================================================
-   FOG SOCIETY WEAR — comportamiento común
+   FOG — comportamiento común
    Motor de scroll (parallax, revelados, secuencia sticky),
    carrito, ficha rápida, navegación y formularios.
    ========================================================= */

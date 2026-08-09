@@ -1,5 +1,5 @@
 /* =========================================================
-   FOG SOCIETY WEAR — catálogo
+   FOG — catálogo
    Códigos, siluetas y colorways tomados de la ficha técnica.
    PRECIOS: provisionales, pendientes de fijar. Se editan aquí
    y se propagan a toda la web.

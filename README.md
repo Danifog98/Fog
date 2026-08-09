@@ -1,4 +1,4 @@
-# FOG Society Wear — web
+# FOG — web
 
 Web estática de la marca: HTML, CSS y JavaScript sin dependencias, sin build y
 sin conexiones externas. Se abre haciendo doble clic en `index.html` o se sube
@@ -22,6 +22,7 @@ assets/
   js/site.js         Motor de scroll, carrito, ficha rápida, menú, formularios
   js/shop.js         Filtros y orden de la tienda
   img/               Fotos y logos recortados de las fichas técnicas
+  fonts/             Anton e Inter en woff2 (autoalojadas, 67 KB)
 ```
 
 ## Cómo editar lo habitual
@@ -34,7 +35,9 @@ el carrito.
 > mujer…) son **provisionales**: se pusieron para que la tienda funcione. Cámbialos
 > antes de publicar.
 
-**Colores de marca** → bloque `:root` al principio de `assets/css/styles.css`.
+**Colores y tipografías** → bloque `:root` al principio de `assets/css/styles.css`.
+Los titulares usan Anton y el resto Inter; ambas están en `assets/fonts/` y se
+cargan desde el propio dominio, sin llamadas a Google Fonts.
 
 **Fotos** → `assets/img/`. Sustituye un archivo por otro con el mismo nombre y
 la web lo coge sin tocar código. Nomenclatura:
@@ -43,7 +46,7 @@ la web lo coge sin tocar código. Nomenclatura:
 - `flat-<color>.jpg` / `short-<color>.jpg` — prenda sola
 - `tex-<color>.jpg` — macro de tejido y logo
 - `women-<color>.jpg` / `bra-<color>.jpg` — línea de mujer
-- `logo-lockup.png`, `logo-horizontal.png`, `logo-icon.png` — logos con fondo transparente
+- `logo-wordmark.png`, `logo-icon.png` — logotipo y símbolo FG, con fondo transparente
 
 **Cabecera, pie, carrito y ficha rápida** están repetidos en los cuatro HTML: si
 cambias un enlace del menú, cámbialo en los cuatro archivos.

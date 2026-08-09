@@ -1,7 +1,24 @@
 /* =========================================================
-   FOG SOCIETY WEAR
+   FOG
    Hoja de estilos principal — tema oscuro, escala editorial.
    ========================================================= */
+
+/* ---------- Tipografía (autoalojada, sin peticiones externas) ---------- */
+@font-face {
+  font-family: "Anton";
+  src: url("../fonts/anton-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ---------- Tokens ---------- */
 :root {
@@ -23,16 +40,17 @@
   --cream: #d9d0bd;
   --charcoal: #26262c;
 
-  --font: "Helvetica Neue", Helvetica, "Arial Narrow", Arial, "Segoe UI",
-    Roboto, system-ui, sans-serif;
+  /* Titulares en condensada pesada; interfaz y texto en grotesca neutra. */
+  --font-display: "Anton", "Arial Narrow", Impact, "Helvetica Neue", sans-serif;
+  --font: "Inter", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
 
   --step--2: 0.68rem;
   --step--1: 0.76rem;
   --step-0: clamp(0.94rem, 0.9rem + 0.18vw, 1.05rem);
   --step-1: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
   --step-2: clamp(1.5rem, 1.2rem + 1.4vw, 2.6rem);
-  --step-3: clamp(2.1rem, 1.4rem + 3.2vw, 4.6rem);
-  --step-4: clamp(3rem, 1.2rem + 8vw, 9.5rem);
+  --step-3: clamp(2.3rem, 1.5rem + 3.6vw, 5.2rem);
+  --step-4: clamp(3.2rem, 1.2rem + 8.6vw, 10.5rem);
   --step-5: clamp(4rem, 0.5rem + 15vw, 17rem);
 
   --wrap: 1440px;
@@ -111,9 +129,10 @@ h2,
 h3,
 h4 {
   margin: 0;
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -0.035em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.94;
+  letter-spacing: 0.005em;
   text-transform: uppercase;
 }
 
@@ -413,8 +432,7 @@ ol {
 }
 
 .brand img {
-  height: 26px;
-  width: auto;
+  width: 104px;
 }
 
 .brand__sub {
@@ -576,10 +594,11 @@ ol {
   display: flex;
   align-items: baseline;
   gap: 1rem;
+  font-family: var(--font-display);
   font-size: clamp(2rem, 11vw, 3.4rem);
-  font-weight: 800;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.01em;
   padding-block: 0.5rem;
   border-bottom: 1px solid var(--line-soft);
   opacity: 0;
@@ -599,6 +618,7 @@ ol {
 }
 
 .mobile-nav__links em {
+  font-family: var(--font);
   font-size: var(--step--2);
   font-style: normal;
   letter-spacing: 0.24em;
@@ -737,13 +757,13 @@ ol {
 }
 
 .hero__lockup {
-  width: min(340px, 56vw);
+  width: min(420px, 62vw);
   margin-bottom: clamp(1rem, 2.5vw, 1.75rem);
   filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.8));
 }
 
 .hero__title {
-  font-size: clamp(1.9rem, 1rem + 3.2vw, 3.8rem);
+  font-size: clamp(2.1rem, 1rem + 3.6vw, 4.4rem);
   max-width: 16ch;
 }
 
@@ -793,9 +813,10 @@ ol {
 
 .hero__stats strong {
   display: block;
+  font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .hero__stats span {
@@ -863,10 +884,11 @@ ol {
 }
 
 .marquee__track span {
+  font-family: var(--font-display);
   font-size: var(--step-2);
-  font-weight: 800;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   color: var(--bone);
 }
@@ -929,14 +951,15 @@ ol {
 }
 
 .sequence__word {
+  font-family: var(--font-display);
   position: absolute;
   left: 50%;
   top: 50%;
   z-index: 1;
   transform: translate(-50%, -50%);
   font-size: var(--step-5);
-  font-weight: 800;
-  letter-spacing: -0.05em;
+  font-weight: 400;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   color: transparent;
   -webkit-text-stroke: 1px rgba(236, 231, 221, 0.22);
@@ -956,14 +979,16 @@ ol {
 }
 
 .sequence__index {
+  font-family: var(--font-display);
   font-size: var(--step-2);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .sequence__name {
+  font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 700;
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -1113,11 +1138,9 @@ ol {
 }
 
 .card__name {
-  font-size: var(--step-0);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.005em;
-  margin-top: 0.3rem;
+  font-size: var(--step-1);
+  letter-spacing: 0.01em;
+  margin-top: 0.35rem;
 }
 
 .card__color {
@@ -1371,9 +1394,11 @@ ol {
 
 .spec strong {
   display: block;
+  font-family: var(--font-display);
   font-size: var(--step-2);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 .spec span {
@@ -1523,10 +1548,11 @@ ol {
   cursor: pointer;
   position: relative;
   padding: 1.3rem 2.5rem 1.3rem 0;
+  font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 700;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
   transition: color 0.3s var(--ease);
 }
 
@@ -1734,9 +1760,11 @@ ol {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 700;
+  font-weight: 400;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 /* ---------- Ficha rápida ---------- */
@@ -1809,6 +1837,17 @@ ol {
   gap: 1.1rem;
 }
 
+/* El botón de compra queda anclado al pie de la columna aunque la ficha
+   sea larga y haya que desplazarla. */
+.modal__body [data-modal-add] {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  /* El halo tapa el texto que pasa por detrás al desplazar la ficha. */
+  box-shadow: 0 0 0 14px var(--ink), 0 28px 0 28px var(--ink),
+    0 -24px 20px -16px var(--ink);
+}
+
 .modal__close {
   position: absolute;
   top: 0;
@@ -1834,9 +1873,10 @@ ol {
 }
 
 .price-row strong {
+  font-family: var(--font-display);
   font-size: var(--step-2);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .size-list {

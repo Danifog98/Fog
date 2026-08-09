@@ -1,5 +1,5 @@
 /* =========================================================
-   FOG SOCIETY WEAR — tienda: filtros, orden y estado en la URL
+   FOG — tienda: filtros, orden y estado en la URL
    ========================================================= */
 
 (function () {
