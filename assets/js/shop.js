@@ -124,4 +124,6 @@
   } else {
     start();
   }
+
+  window.FogShop = { start: start };
 })();
