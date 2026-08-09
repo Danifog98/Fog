@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tienda — FOG</title>
+    <meta name="description" content="Toda la colección FOG: combos de performance, compresión, shorts, línea de mujer y lifestyle." />
+    <meta name="theme-color" content="#08080a" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Tienda — FOG" />
+    <meta property="og:description" content="Toda la colección FOG: combos de performance, compresión, shorts, línea de mujer y lifestyle." />
+    <meta property="og:image" content="assets/img/men-black.jpg" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2308080a'/%3E%3Ctext x='16' y='23' font-family='Helvetica,Arial' font-size='16' font-weight='700' fill='%23c9bda8' text-anchor='middle'%3EFG%3C/text%3E%3C/svg%3E" />
+    <link rel="preload" as="font" type="font/woff2" href="assets/fonts/anton-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin.woff2" crossorigin />
+    <link rel="preload" as="image" href="assets/img/logo-wordmark.png" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body data-page="shop">
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+
+    <div class="ticker-top" aria-hidden="true">
+      <div class="ticker-top__track">
+        <span>Mentalidad sobre todo</span><span>·</span><span>Disciplina diaria</span>
+        <span>·</span><span>Niebla enfocada</span><span>·</span>
+        <span>Envío 48 h en península</span><span>·</span><span>Series limitadas</span>
+        <span>·</span><span>Mentalidad sobre todo</span><span>·</span>
+        <span>Disciplina diaria</span><span>·</span><span>Niebla enfocada</span>
+        <span>·</span><span>Envío 48 h en península</span><span>·</span>
+        <span>Series limitadas</span><span>·</span>
+      </div>
+    </div>
+
+    <header class="site-header" data-header>
+      <div class="wrap header-inner">
+        <a class="brand" href="index.html" aria-label="FOG, inicio">
+          <img src="assets/img/logo-wordmark.png" alt="FOG" width="845" height="256" />
+          <span class="brand__sub">Est. 2024</span>
+        </a>
+
+        <nav class="nav" aria-label="Principal">
+          <a href="tienda.html">Tienda</a>
+          <a href="tienda.html?categoria=mujer">Mujer</a>
+          <a href="marca.html">Marca</a>
+          <a href="contacto.html">Contacto</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" type="button" data-cart-open aria-label="Abrir el carrito">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 7h14l1.2 13H3.8L5 7Z" />
+              <path d="M9 7V5.5a3 3 0 0 1 6 0V7" />
+            </svg>
+            <span class="cart-count" data-cart-count>0</span>
+          </button>
+          <button class="icon-btn nav-toggle" type="button" data-nav-open aria-label="Abrir el menú">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 8h18M3 16h18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="mobile-nav" data-mobile-nav aria-hidden="true">
+      <div class="mobile-nav__top">
+        <img src="assets/img/logo-wordmark.png" alt="FOG" style="width:96px" />
+        <button class="icon-btn" type="button" data-nav-close aria-label="Cerrar el menú">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      <nav class="mobile-nav__links" aria-label="Menú móvil">
+        <a href="tienda.html" style="--i:0"><em>01</em>Tienda</a>
+        <a href="tienda.html?categoria=mujer" style="--i:1"><em>02</em>Mujer</a>
+        <a href="marca.html" style="--i:2"><em>03</em>Marca</a>
+        <a href="contacto.html" style="--i:3"><em>04</em>Contacto</a>
+      </nav>
+      <div class="mobile-nav__foot">
+        <span>hola@fogwear.com</span><span>Instagram</span><span>Est. 2024</span>
+      </div>
+    </div>
+
+    <main id="main">
+      <section class="wrap" style="padding-top:clamp(3rem,8vw,6rem)">
+        <p class="label" data-reveal>La colección</p>
+        <h1 class="h-lg" data-reveal style="--i:1;margin-top:1rem">Tienda</h1>
+        <p class="body-lg" data-reveal style="--i:2;margin-top:1.5rem">
+          Dos siluetas de performance, seis colorways y una línea lifestyle.
+          Todo sobre la misma plataforma de construcción.
+        </p>
+      </section>
+
+      <div class="wrap" style="margin-top:clamp(2rem,5vw,3.5rem)">
+        <div class="toolbar">
+          <div class="filters" data-filters role="group" aria-label="Filtrar por categoría"></div>
+          <div style="display:flex;align-items:center;gap:1.5rem">
+            <span class="label" data-shop-count></span>
+            <label class="sort">
+              Orden
+              <select data-sort aria-label="Ordenar">
+                <option value="coleccion">Colección</option>
+                <option value="precio-asc">Precio ↑</option>
+                <option value="precio-desc">Precio ↓</option>
+                <option value="nombre">Nombre</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <section class="wrap" style="padding-bottom:clamp(4rem,9vw,7rem)">
+        <div class="grid" data-shop-grid></div>
+      </section>
+
+      <section class="section" style="background:var(--ink)">
+        <div class="wrap split split--reverse">
+          <div class="split__media" data-reveal="clip" style="aspect-ratio:4/3">
+            <img src="assets/img/lineup-flats.jpg" alt="Fichas de producto de la colección"
+                 width="1536" height="545" loading="lazy" style="object-fit:cover" data-parallax="0.05" />
+          </div>
+          <div class="split__body">
+            <p class="label" data-reveal>Tallaje</p>
+            <h2 class="h-lg" data-reveal style="--i:1">Cómo elegir<br />tu talla</h2>
+            <p class="body-lg" data-reveal style="--i:2">
+              La compresión va ceñida por diseño: si estás entre dos tallas y
+              buscas ese efecto, quédate con la menor. El short tiene fit relajado
+              y va fiel a tu talla habitual.
+            </p>
+            <p data-reveal style="--i:3"><a class="arrow-link" href="contacto.html#faq">Guía completa →</a></p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <img class="footer-mark" src="assets/img/logo-wordmark.png" alt="FOG"
+             width="845" height="256" loading="lazy" data-reveal="fade" />
+
+        <div class="footer-grid">
+          <div class="footer-col">
+            <h4>La marca</h4>
+            <p class="body" style="font-size:var(--step--1)">
+              Ropa técnica de entrenamiento diseñada para respirar y aguantar.
+              Dos siluetas, seis colorways, una sola plataforma de construcción.
+            </p>
+          </div>
+          <div class="footer-col">
+            <h4>Colección</h4>
+            <ul>
+              <li><a href="tienda.html">Todo</a></li>
+              <li><a href="tienda.html?categoria=combos">Combos</a></li>
+              <li><a href="tienda.html?categoria=compresion">Compresión</a></li>
+              <li><a href="tienda.html?categoria=shorts">Shorts</a></li>
+              <li><a href="tienda.html?categoria=mujer">Mujer</a></li>
+              <li><a href="tienda.html?categoria=lifestyle">Lifestyle</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Ayuda</h4>
+            <ul>
+              <li><a href="contacto.html#faq">Guía de tallas</a></li>
+              <li><a href="contacto.html#faq">Envíos</a></li>
+              <li><a href="contacto.html#faq">Devoluciones</a></li>
+              <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Contacto</h4>
+            <ul>
+              <li><a href="mailto:hola@fogwear.com">hola@fogwear.com</a></li>
+              <li>Instagram · TikTok</li>
+              <li>España</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>© <span data-year>2026</span> FOG</p>
+          <p>Mentalidad sobre todo · Disciplina diaria · Niebla enfocada</p>
+        </div>
+      </div>
+    </footer>
+
+    <div class="overlay" data-overlay></div>
+
+    <aside class="drawer" data-drawer role="dialog" aria-modal="true"
+           aria-label="Carrito" aria-hidden="true">
+      <div class="drawer__head">
+        <p class="drawer__title">Carrito</p>
+        <button class="icon-btn" type="button" data-cart-close aria-label="Cerrar el carrito">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      <div class="drawer__body" data-cart-body></div>
+      <div class="drawer__foot" data-cart-foot hidden>
+        <div class="totals"><span>Subtotal</span><strong data-cart-total>0 €</strong></div>
+        <p class="dim" style="font-size:var(--step--2);letter-spacing:.16em;text-transform:uppercase">
+          Impuestos incluidos · Envío calculado en el pago
+        </p>
+        <button class="btn btn--block" type="button" data-checkout><span>Finalizar compra</span></button>
+      </div>
+    </aside>
+
+    <div class="modal" data-modal role="dialog" aria-modal="true"
+         aria-label="Ficha de producto" aria-hidden="true">
+      <div class="modal__panel">
+        <button class="modal__close" type="button" data-modal-close aria-label="Cerrar">✕</button>
+        <div class="modal__media" data-modal-media></div>
+        <div class="modal__body">
+          <p class="label" data-modal-code></p>
+          <h2 class="h-md" data-modal-name></h2>
+          <p class="card__color">
+            <i class="sequence__swatch" data-modal-swatch></i><span data-modal-color></span>
+          </p>
+          <div class="price-row">
+            <strong data-modal-price></strong>
+            <span class="label">IVA incluido</span>
+          </div>
+          <p class="body" data-modal-desc></p>
+          <div>
+            <p class="label" style="margin-bottom:.7rem">Talla</p>
+            <div class="size-list" data-modal-sizes></div>
+          </div>
+          <ul class="spec-list" data-modal-specs></ul>
+          <button class="btn btn--block" type="button" data-modal-add><span>Añadir al carrito</span></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/products.js"></script>
+    <script src="assets/js/site.js"></script>
+
+    <script src="assets/js/shop.js"></script>
+  </body>
+</html>
