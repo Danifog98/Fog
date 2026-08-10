@@ -163,10 +163,15 @@
       var word = shot.getAttribute("data-word") || name;
 
       if (seq.bg) {
+        // Parada intermedia para que el degradado no salte de golpe a
+        // negro casi puro: sin ella se ven bandas de color concéntricas
+        // sobre tonos oscuros.
         seq.bg.style.background =
           "radial-gradient(70% 60% at 50% 45%, " +
           hexToRgba(hex, 0.32) +
-          ", rgba(8,8,10,0.98) 72%)";
+          ", " +
+          hexToRgba(hex, 0.14) +
+          " 42%, rgba(8,8,10,0.98) 72%)";
       }
       if (seq.word) seq.word.textContent = word;
       if (seq.name) seq.name.textContent = name;
@@ -732,7 +737,7 @@
           '" data-word="' +
           Catalog.escape(c.name.split(" / ")[0]) +
           '">' +
-          '<img class="img-fade" src="assets/img/men-' +
+          '<img src="assets/img/men-' +
           c.id +
           '.jpg" alt="Combo FOG en colorway ' +
           Catalog.escape(c.name) +
