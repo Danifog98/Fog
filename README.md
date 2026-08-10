@@ -1,6 +1,6 @@
 # FOG — web
 
-Web estática de la marca, publicada en **fog.shop**: HTML, CSS y JavaScript sin dependencias, sin build y
+Web estática de la marca, publicada en **fogactivewear.com**: HTML, CSS y JavaScript sin dependencias, sin build y
 sin conexiones externas. Se abre haciendo doble clic en `index.html` o se sube
 tal cual a cualquier hosting (GitHub Pages, Netlify, Vercel, un FTP…).
 
@@ -53,7 +53,7 @@ cambias un enlace del menú, cámbialo en los cuatro archivos.
 
 ## Dominio y publicación
 
-El archivo `CNAME` de la raíz fija el dominio (`fog.shop`) y el flujo
+El archivo `CNAME` de la raíz fija el dominio (`fogactivewear.com`) y el flujo
 `.github/workflows/pages.yml` publica el repositorio en GitHub Pages con cada
 cambio en `main`. En el proveedor del dominio tienen que existir estos registros:
 
