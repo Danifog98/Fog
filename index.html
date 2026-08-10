@@ -3,394 +3,257 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FOG — Ropa técnica de entrenamiento</title>
-    <meta name="description" content="FOG: compresión second skin, shorts de performance y conjuntos de mujer en seis colorways. Mentalidad sobre todo." />
+    <title>FOG — Coming Soon</title>
+    <meta
+      name="description"
+      content="FOG. Ropa técnica de entrenamiento. La colección completa, muy pronto."
+    />
     <meta name="theme-color" content="#08080a" />
     <meta name="color-scheme" content="dark" />
     <link rel="canonical" href="https://fogactivewear.com/" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="FOG — Ropa técnica de entrenamiento" />
-    <meta property="og:description" content="FOG: compresión second skin, shorts de performance y conjuntos de mujer en seis colorways. Mentalidad sobre todo." />
+    <meta property="og:title" content="FOG — Coming Soon" />
+    <meta
+      property="og:description"
+      content="FOG. Ropa técnica de entrenamiento. La colección completa, muy pronto."
+    />
     <meta property="og:url" content="https://fogactivewear.com/" />
     <meta property="og:image" content="https://fogactivewear.com/assets/img/men-black.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2308080a'/%3E%3Ctext x='16' y='23' font-family='Helvetica,Arial' font-size='16' font-weight='700' fill='%23c9bda8' text-anchor='middle'%3EFG%3C/text%3E%3C/svg%3E" />
+    <meta name="robots" content="noindex" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2308080a'/%3E%3Ctext x='16' y='23' font-family='Helvetica,Arial' font-size='16' font-weight='700' fill='%23c9bda8' text-anchor='middle'%3EFG%3C/text%3E%3C/svg%3E"
+    />
     <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin.woff2" crossorigin />
     <link rel="preload" as="image" href="assets/img/logo-wordmark.png" />
     <link rel="stylesheet" href="assets/css/styles.css" />
+    <style>
+      /* Página de espera, aislada del resto del sitio: no toca styles.css,
+         solo reutiliza sus tokens de color, tipografía y ritmo. */
+      body[data-page="coming-soon"] {
+        min-height: 100svh;
+        display: grid;
+      }
+
+      .soon {
+        position: relative;
+        min-height: 100svh;
+        display: grid;
+        overflow: hidden;
+      }
+
+      .soon__media {
+        position: absolute;
+        inset: -6%;
+        z-index: 0;
+      }
+
+      .soon__media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 22%;
+        opacity: 0.4;
+        filter: grayscale(0.15) contrast(1.05);
+      }
+
+      .soon__veil {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: radial-gradient(
+            65% 60% at 50% 38%,
+            rgba(8, 8, 10, 0.35),
+            rgba(8, 8, 10, 0.88) 78%
+          ),
+          linear-gradient(180deg, rgba(8, 8, 10, 0.55) 0%, var(--black) 100%);
+      }
+
+      .soon__inner {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: clamp(1.5rem, 4vw, 2.5rem);
+        text-align: center;
+        padding: clamp(1.5rem, 6vw, 4rem);
+      }
+
+      .soon__logo {
+        width: min(280px, 52vw);
+      }
+
+      .soon__headline {
+        font-family: var(--font-display);
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        text-transform: uppercase;
+        font-size: clamp(2.2rem, 6vw + 1rem, 5rem);
+        line-height: 0.95;
+      }
+
+      .soon__tag {
+        font-size: var(--step--1);
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: var(--stone);
+      }
+
+      .soon__lede {
+        max-width: 34ch;
+        color: var(--bone-dim);
+        font-size: var(--step-1);
+        line-height: 1.5;
+      }
+
+      .soon__form {
+        width: min(420px, 100%);
+        margin-top: 0.5rem;
+      }
+
+      .soon__row {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+      }
+
+      .soon__row input {
+        flex: 1 1 220px;
+        min-width: 0;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--line);
+        padding: 1rem;
+        color: var(--bone);
+        letter-spacing: 0.02em;
+      }
+
+      .soon__row input::placeholder {
+        color: var(--muted);
+      }
+
+      .soon__row input:focus {
+        outline: none;
+        border-color: var(--bone-dim);
+      }
+
+      .soon__status {
+        margin-top: 0.85rem;
+        font-size: var(--step--1);
+        min-height: 1.3em;
+        color: var(--stone);
+      }
+
+      .soon__status[data-state="error"] {
+        color: #c9635f;
+      }
+
+      .soon__foot {
+        position: absolute;
+        z-index: 2;
+        bottom: clamp(1.25rem, 3vw, 2rem);
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        font-size: var(--step--2);
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .soon__foot a {
+        color: var(--bone-dim);
+        transition: color 0.3s var(--ease);
+      }
+
+      .soon__foot a:hover {
+        color: var(--stone);
+      }
+    </style>
   </head>
-  <body data-page="home">
-    <a class="skip-link" href="#main">Saltar al contenido</a>
-
-    <div class="ticker-top" aria-hidden="true">
-      <div class="ticker-top__track">
-        <span>Mentalidad sobre todo</span><span>·</span><span>Disciplina diaria</span>
-        <span>·</span><span>Niebla enfocada</span><span>·</span>
-        <span>Envío 48 h en península</span><span>·</span><span>Series limitadas</span>
-        <span>·</span><span>Mentalidad sobre todo</span><span>·</span>
-        <span>Disciplina diaria</span><span>·</span><span>Niebla enfocada</span>
-        <span>·</span><span>Envío 48 h en península</span><span>·</span>
-        <span>Series limitadas</span><span>·</span>
+  <body data-page="coming-soon">
+    <main class="soon">
+      <div class="soon__media" aria-hidden="true">
+        <img src="assets/img/lineup.jpg" alt="" />
       </div>
-    </div>
+      <div class="soon__veil" aria-hidden="true"></div>
 
-    <header class="site-header" data-header>
-      <div class="wrap header-inner">
-        <a class="brand" href="index.html" aria-label="FOG, inicio">
-          <img src="assets/img/logo-wordmark.png" alt="FOG" width="845" height="256" />
-          <span class="brand__sub">Est. 2024</span>
-        </a>
-
-        <nav class="nav" aria-label="Principal">
-          <a href="tienda.html">Tienda</a>
-          <a href="tienda.html?categoria=mujer">Mujer</a>
-          <a href="marca.html">Marca</a>
-          <a href="contacto.html">Contacto</a>
-        </nav>
-
-        <div class="header-actions">
-          <button class="icon-btn" type="button" data-cart-open aria-label="Abrir el carrito">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 7h14l1.2 13H3.8L5 7Z" />
-              <path d="M9 7V5.5a3 3 0 0 1 6 0V7" />
-            </svg>
-            <span class="cart-count" data-cart-count>0</span>
-          </button>
-          <button class="icon-btn nav-toggle" type="button" data-nav-open aria-label="Abrir el menú">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 8h18M3 16h18" />
-            </svg>
-          </button>
+      <div class="soon__inner">
+        <img
+          class="soon__logo"
+          src="assets/img/logo-wordmark.png"
+          alt="FOG"
+          width="845"
+          height="256"
+        />
+        <div>
+          <h1 class="soon__headline">Coming soon</h1>
+          <p class="soon__tag">Built in discipline</p>
         </div>
+        <p class="soon__lede">La colección completa, muy pronto.</p>
+
+        <form
+          class="soon__form"
+          data-form
+          data-success="Dentro. Te avisamos en cuanto abramos."
+          data-toast="Suscripción registrada"
+          novalidate
+        >
+          <div class="soon__row">
+            <label class="vh" for="soon-email">Tu correo</label>
+            <input
+              id="soon-email"
+              name="email"
+              type="email"
+              required
+              placeholder="tu@correo.com"
+              autocomplete="email"
+            />
+            <button class="btn btn--ghost" type="submit"><span>Avisadme</span></button>
+          </div>
+          <p class="soon__status" data-form-status role="status"></p>
+        </form>
       </div>
-    </header>
 
-    <div class="mobile-nav" data-mobile-nav aria-hidden="true">
-      <div class="mobile-nav__top">
-        <img src="assets/img/logo-wordmark.png" alt="FOG" style="width:96px" />
-        <button class="icon-btn" type="button" data-nav-close aria-label="Cerrar el menú">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-        </button>
-      </div>
-      <nav class="mobile-nav__links" aria-label="Menú móvil">
-        <a href="tienda.html" style="--i:0"><em>01</em>Tienda</a>
-        <a href="tienda.html?categoria=mujer" style="--i:1"><em>02</em>Mujer</a>
-        <a href="marca.html" style="--i:2"><em>03</em>Marca</a>
-        <a href="contacto.html" style="--i:3"><em>04</em>Contacto</a>
-      </nav>
-      <div class="mobile-nav__foot">
-        <span>hola@fogactivewear.com</span><span>Instagram</span><span>Est. 2024</span>
-      </div>
-    </div>
-
-    <main id="main">
-      <!-- ================= HERO ================= -->
-      <section class="hero">
-        <div class="hero__backdrop" aria-hidden="true">
-          <img src="assets/img/lineup.jpg" alt="" width="1536" height="479" />
-        </div>
-        <div class="hero__figure" data-hero-media>
-          <img class="img-fade" src="assets/img/men-black.jpg"
-               alt="Combo 04 Black Tonal de FOG"
-               width="770" height="945" fetchpriority="high" />
-        </div>
-        <div class="hero__veil" aria-hidden="true"></div>
-
-        <div class="wrap hero__inner" data-hero-inner>
-          <img class="hero__lockup" src="assets/img/logo-wordmark.png"
-               alt="FOG" width="845" height="256" />
-          <h1 class="hero__title">
-            <span><i style="--i:0">Segunda piel.</i></span>
-            <span><i style="--i:1">Disciplina</i></span>
-            <span><i style="--i:2">diaria.</i></span>
-          </h1>
-          <div class="hero__row">
-            <div>
-              <p class="body-lg" style="margin-bottom:1.75rem">
-                Compresión y short de performance construidos sobre la misma
-                plataforma técnica. Respirabilidad diseñada, no improvisada.
-              </p>
-              <div class="hero__cta">
-                <a class="btn" href="tienda.html"><span>Ver la colección</span></a>
-                <a class="btn btn--ghost" href="#colorways"><span>Los 6 colorways</span></a>
-              </div>
-            </div>
-            <div class="hero__stats">
-              <div><strong>06</strong><span>Colorways</span></div>
-              <div><strong>02</strong><span>Siluetas</span></div>
-              <div><strong>2024</strong><span>Est.</span></div>
-            </div>
-          </div>
-        </div>
-
-        <p class="scroll-hint" aria-hidden="true">Desliza</p>
-      </section>
-
-      <!-- ================= MANIFIESTO ================= -->
-      <section class="marquee" aria-label="Manifiesto">
-        <div class="marquee__track" data-drift="0.5" data-drift-host>
-          <span>Mentalidad sobre todo</span><span>Disciplina diaria</span>
-          <span>Niebla enfocada</span><span>Built in discipline</span>
-          <span>Mentalidad sobre todo</span><span>Disciplina diaria</span>
-        </div>
-      </section>
-
-      <!-- ================= SECUENCIA DE COLORWAYS ================= -->
-      <section class="sequence" id="colorways" data-sequence aria-label="Colorways de la colección">
-        <div class="sequence__sticky">
-          <div class="sequence__bg" data-seq-bg></div>
-          <p class="sequence__word" data-seq-word>Olive</p>
-          <div class="sequence__stage" data-seq-stage></div>
-
-          <div class="sequence__head">
-            <p class="label">La colección · Performance</p>
-            <p class="label">Desliza para recorrer</p>
-          </div>
-
-          <div class="sequence__meta">
-            <p class="sequence__index" data-seq-index>01</p>
-            <div>
-              <p class="sequence__name" data-seq-name>Olive / Black</p>
-              <p class="sequence__hex">
-                <i class="sequence__swatch" data-seq-swatch style="background:#4b4f36"></i>
-                <span data-seq-hex>#4b4f36</span>
-              </p>
-            </div>
-          </div>
-
-          <div class="sequence__bar" data-bar></div>
-        </div>
-      </section>
-
-      <!-- ================= COMBOS ================= -->
-      <section class="section wrap">
-        <div class="split" style="align-items:flex-end;margin-bottom:clamp(2rem,5vw,3.5rem)">
-          <div data-reveal>
-            <p class="label" style="margin-bottom:1.2rem">01 — Combos</p>
-            <h2 class="h-lg">El conjunto<br />completo</h2>
-          </div>
-          <div data-reveal style="--i:1">
-            <p class="body-lg">
-              Compresión de manga larga y short de entrenamiento. Se venden juntos
-              porque están diseñados juntos: mismo patrón, misma caída, mismo tono.
-            </p>
-            <p style="margin-top:1.5rem"><a class="arrow-link" href="tienda.html?categoria=combos">Ver todos →</a></p>
-          </div>
-        </div>
-        <div class="grid" data-featured="6"></div>
-      </section>
-
-      <!-- ================= EDITORIAL: TEJIDO ================= -->
-      <section class="section" style="background:var(--ink)">
-        <div class="wrap split split--reverse">
-          <div class="split__media" data-reveal="clip">
-            <img src="assets/img/edit-navy.jpg" alt="Detalle del panel de mesh en la espalda"
-                 width="795" height="945" loading="lazy" data-parallax="0.07" />
-          </div>
-          <div class="split__body">
-            <p class="label" data-reveal>02 — Construcción</p>
-            <h2 class="h-lg" data-reveal style="--i:1">Respirabilidad<br />diseñada</h2>
-            <p class="body-lg" data-reveal style="--i:2">
-              El calor sale por donde tiene que salir. Los paneles de mesh se sitúan
-              en axila, costado y columna; el resto del cuerpo es tejido de
-              compresión liso que sostiene sin apretar.
-            </p>
-            <ul class="feature-list" data-reveal style="--i:3">
-              <li><b>01</b><span><strong>Second skin fit</strong>Manga ranglán y cuello redondo, sin costuras que rocen.</span></li>
-              <li><b>02</b><span><strong>Mesh micro-perforado</strong>Ventilación en las zonas de más calor.</span></li>
-              <li><b>03</b><span><strong>Elasticidad 4 direcciones</strong>Acompaña el gesto en press, sentadilla y remo.</span></li>
-              <li><b>04</b><span><strong>Gráficos tono sobre tono</strong>Logo FG rubberizado y chevron tejido en la espalda.</span></li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= BANDA A PANTALLA COMPLETA ================= -->
-      <section class="band">
-        <div class="band__media" data-parallax="0.06">
-          <img src="assets/img/lineup.jpg" alt="Línea completa de FOG"
-               width="1536" height="479" loading="lazy" />
-        </div>
-        <div class="band__inner">
-          <p class="label" data-reveal>Built in discipline</p>
-          <h2 class="h-xl" data-reveal style="--i:1">Niebla<br />enfocada</h2>
-          <p class="body-lg" data-reveal style="--i:2;margin-inline:auto">
-            No hay atajos. Hay repeticiones.
-          </p>
-          <p style="margin-top:2rem" data-reveal><a class="btn btn--ghost" href="marca.html"><span>La marca</span></a></p>
-        </div>
-      </section>
-
-      <!-- ================= MUJER ================= -->
-      <section class="section wrap">
-        <div class="split split--wide" style="margin-bottom:clamp(2rem,5vw,3.5rem)">
-          <div class="split__media" data-reveal="clip" style="aspect-ratio:4/5">
-            <img src="assets/img/combo01-women.jpg" alt="Conjunto flare de FOG"
-                 width="1000" height="1280" loading="lazy" data-parallax="0.05" />
-          </div>
-          <div class="split__body">
-            <p class="label" data-reveal>03 — Mujer</p>
-            <h2 class="h-lg" data-reveal style="--i:1">Conjunto<br />flare</h2>
-            <p class="body-lg" data-reveal style="--i:2">
-              Sujetador de sujeción media con espalda en Y y leggings de talle alto
-              con corte flare. Tejido opaco, costuras ergonómicas y logo en relieve
-              tono sobre tono.
-            </p>
-            <p data-reveal style="--i:3"><a class="arrow-link" href="tienda.html?categoria=mujer">Ver la línea →</a></p>
-          </div>
-        </div>
-        <div class="grid" data-women-grid></div>
-      </section>
-
-      <!-- ================= TEXTURAS ================= -->
-      <section class="section" style="background:var(--ink)" data-drift-host>
-        <div class="wrap" style="margin-bottom:clamp(1.5rem,4vw,2.5rem)">
-          <p class="label" data-reveal>04 — Detalles</p>
-          <h2 class="h-lg" data-reveal style="--i:1">Tono sobre tono</h2>
-        </div>
-        <div class="strip-viewport">
-          <div class="strip" data-drift="0.55">
-            <figure><img src="assets/img/tex-olive.jpg" alt="Logo FG rubberizado sobre olive" loading="lazy" /><figcaption>Logo rubberizado · Olive</figcaption></figure>
-            <figure><img src="assets/img/tex-black.jpg" alt="Gráfico tonal sobre negro" loading="lazy" /><figcaption>Gráfico tonal · Black</figcaption></figure>
-            <figure><img src="assets/img/tex-maroon.jpg" alt="Panel de mesh sobre maroon" loading="lazy" /><figcaption>Mesh · Maroon</figcaption></figure>
-            <figure><img src="assets/img/tex-navy.jpg" alt="Costura sobre navy" loading="lazy" /><figcaption>Costura · Navy</figcaption></figure>
-            <figure><img src="assets/img/tex-beige.jpg" alt="Relieve sobre beige" loading="lazy" /><figcaption>Relieve · Beige</figcaption></figure>
-            <figure><img src="assets/img/tex-premium.jpg" alt="Acabado premium del hoodie" loading="lazy" /><figcaption>Acabado · Combo 01</figcaption></figure>
-            <figure><img src="assets/img/tex-white.jpg" alt="Gráfico blanco sobre blanco" loading="lazy" /><figcaption>White on white</figcaption></figure>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= CIFRAS ================= -->
-      <section class="section wrap">
-        <div class="spec-grid">
-          <div class="spec" data-reveal><strong>06</strong><span>Colorways</span><p>Olive, Black Tonal, Maroon, Navy, Beige y White sobre la misma base.</p></div>
-          <div class="spec" data-reveal style="--i:1"><strong>02</strong><span>Siluetas</span><p>Compresión de manga larga y short de performance.</p></div>
-          <div class="spec" data-reveal style="--i:2"><strong>4-way</strong><span>Stretch</span><p>Elasticidad en las cuatro direcciones del movimiento.</p></div>
-          <div class="spec" data-reveal style="--i:3"><strong>48 h</strong><span>Envío</span><p>Entrega en península. Devoluciones en 30 días.</p></div>
-        </div>
-      </section>
-
-      <!-- ================= BOLETÍN ================= -->
-      <section class="section wrap" style="padding-top:0">
-        <div class="newsletter" data-reveal>
-          <div>
-            <p class="label" style="margin-bottom:1rem">Lista privada</p>
-            <h2 class="h-md">Entra antes<br />que el resto</h2>
-          </div>
-          <form data-form data-success="Dentro. Te avisamos antes de cada drop."
-                data-toast="Suscripción registrada" novalidate>
-            <div class="field-row">
-              <label class="vh" for="news-email">Tu correo</label>
-              <input id="news-email" name="email" type="email" required
-                     placeholder="tu@correo.com" autocomplete="email" />
-              <button class="btn" type="submit"><span>Entrar</span></button>
-            </div>
-            <p class="form-note">Avisos de drop y reposiciones. Sin ruido.</p>
-            <p class="form-status" data-form-status role="status"></p>
-          </form>
-        </div>
-      </section>
+      <p class="soon__foot">
+        <span>© <span data-year>2026</span> FOG</span>
+        <a href="mailto:hola@fogactivewear.com">Contacto</a>
+      </p>
     </main>
 
-    <footer class="site-footer">
-      <div class="wrap">
-        <img class="footer-mark" src="assets/img/logo-wordmark.png" alt="FOG"
-             width="845" height="256" loading="lazy" data-reveal="fade" />
+    <script>
+      // Solo lo mínimo que necesita esta página: validar el formulario y
+      // poner el año. No carga site.js completo (carrito, menú, secuencia…)
+      // porque nada de eso existe aquí.
+      (function () {
+        "use strict";
+        var form = document.querySelector("[data-form]");
+        var year = document.querySelector("[data-year]");
+        if (year) year.textContent = new Date().getFullYear();
+        if (!form) return;
 
-        <div class="footer-grid">
-          <div class="footer-col">
-            <h4>La marca</h4>
-            <p class="body" style="font-size:var(--step--1)">
-              Ropa técnica de entrenamiento diseñada para respirar y aguantar.
-              Dos siluetas, seis colorways, una sola plataforma de construcción.
-            </p>
-          </div>
-          <div class="footer-col">
-            <h4>Colección</h4>
-            <ul>
-              <li><a href="tienda.html">Todo</a></li>
-              <li><a href="tienda.html?categoria=combos">Combos</a></li>
-              <li><a href="tienda.html?categoria=compresion">Compresión</a></li>
-              <li><a href="tienda.html?categoria=shorts">Shorts</a></li>
-              <li><a href="tienda.html?categoria=mujer">Mujer</a></li>
-              <li><a href="tienda.html?categoria=lifestyle">Lifestyle</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Ayuda</h4>
-            <ul>
-              <li><a href="contacto.html#faq">Guía de tallas</a></li>
-              <li><a href="contacto.html#faq">Envíos</a></li>
-              <li><a href="contacto.html#faq">Devoluciones</a></li>
-              <li><a href="contacto.html">Contacto</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Contacto</h4>
-            <ul>
-              <li><a href="mailto:hola@fogactivewear.com">hola@fogactivewear.com</a></li>
-              <li>Instagram · TikTok</li>
-              <li>España</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="footer-bottom">
-          <p>© <span data-year>2026</span> FOG</p>
-          <p>Mentalidad sobre todo · Disciplina diaria · Niebla enfocada</p>
-        </div>
-      </div>
-    </footer>
-
-    <div class="overlay" data-overlay></div>
-
-    <aside class="drawer" data-drawer role="dialog" aria-modal="true"
-           aria-label="Carrito" aria-hidden="true">
-      <div class="drawer__head">
-        <p class="drawer__title">Carrito</p>
-        <button class="icon-btn" type="button" data-cart-close aria-label="Cerrar el carrito">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-        </button>
-      </div>
-      <div class="drawer__body" data-cart-body></div>
-      <div class="drawer__foot" data-cart-foot hidden>
-        <div class="totals"><span>Subtotal</span><strong data-cart-total>0 €</strong></div>
-        <p class="dim" style="font-size:var(--step--2);letter-spacing:.16em;text-transform:uppercase">
-          Impuestos incluidos · Envío calculado en el pago
-        </p>
-        <button class="btn btn--block" type="button" data-checkout><span>Finalizar compra</span></button>
-      </div>
-    </aside>
-
-    <div class="modal" data-modal role="dialog" aria-modal="true"
-         aria-label="Ficha de producto" aria-hidden="true">
-      <div class="modal__panel">
-        <button class="modal__close" type="button" data-modal-close aria-label="Cerrar">✕</button>
-        <div class="modal__media" data-modal-media></div>
-        <div class="modal__body">
-          <p class="label" data-modal-code></p>
-          <h2 class="h-md" data-modal-name></h2>
-          <p class="card__color">
-            <i class="sequence__swatch" data-modal-swatch></i><span data-modal-color></span>
-          </p>
-          <div class="price-row">
-            <strong data-modal-price></strong>
-            <span class="label">IVA incluido</span>
-          </div>
-          <p class="body" data-modal-desc></p>
-          <div>
-            <p class="label" style="margin-bottom:.7rem">Talla</p>
-            <div class="size-list" data-modal-sizes></div>
-          </div>
-          <ul class="spec-list" data-modal-specs></ul>
-          <button class="btn btn--block" type="button" data-modal-add><span>Añadir al carrito</span></button>
-        </div>
-      </div>
-    </div>
-
-    <script src="assets/js/products.js"></script>
-    <script src="assets/js/site.js"></script>
-
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var input = form.querySelector("input[name='email']");
+          var status = form.querySelector("[data-form-status]");
+          if (!input.checkValidity()) {
+            if (status) {
+              status.textContent = "Escribe un correo válido.";
+              status.setAttribute("data-state", "error");
+            }
+            input.focus();
+            return;
+          }
+          if (status) {
+            status.removeAttribute("data-state");
+            status.textContent = form.getAttribute("data-success");
+          }
+          form.reset();
+        });
+      })();
+    </script>
   </body>
 </html>
