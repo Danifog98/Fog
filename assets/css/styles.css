@@ -5,14 +5,6 @@
 
 /* ---------- Tipografía (autoalojada, sin peticiones externas) ---------- */
 @font-face {
-  font-family: "Anton";
-  src: url("../fonts/anton-latin.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "Inter";
   src: url("../fonts/inter-latin.woff2") format("woff2");
   font-weight: 100 900;
@@ -40,18 +32,18 @@
   --cream: #d9d0bd;
   --charcoal: #26262c;
 
-  /* Titulares en condensada pesada; interfaz y texto en grotesca neutra. */
-  --font-display: "Anton", "Arial Narrow", Impact, "Helvetica Neue", sans-serif;
+  /* Una sola familia: los titulares usan el peso más grueso (900). */
   --font: "Inter", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --font-display: var(--font);
 
   --step--2: 0.68rem;
   --step--1: 0.76rem;
   --step-0: clamp(0.94rem, 0.9rem + 0.18vw, 1.05rem);
   --step-1: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
   --step-2: clamp(1.5rem, 1.2rem + 1.4vw, 2.6rem);
-  --step-3: clamp(2.3rem, 1.5rem + 3.6vw, 5.2rem);
-  --step-4: clamp(3.2rem, 1.2rem + 8.6vw, 10.5rem);
-  --step-5: clamp(4rem, 0.5rem + 15vw, 17rem);
+  --step-3: clamp(2rem, 1.4rem + 3vw, 4.4rem);
+  --step-4: clamp(2.8rem, 1.2rem + 7vw, 8.4rem);
+  --step-5: clamp(3.5rem, 0.5rem + 12vw, 13rem);
 
   --wrap: 1440px;
   --gutter: clamp(1.1rem, 3.5vw, 4rem);
@@ -60,15 +52,15 @@
   --fade-x: linear-gradient(
     90deg,
     transparent 0,
-    #000 13%,
-    #000 87%,
+    #000 6%,
+    #000 94%,
     transparent 100%
   );
   --fade-y: linear-gradient(
     180deg,
     transparent 0,
-    #000 7%,
-    #000 91%,
+    #000 3.5%,
+    #000 96%,
     transparent 100%
   );
 
@@ -130,9 +122,9 @@ h3,
 h4 {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 900;
   line-height: 0.94;
-  letter-spacing: 0.005em;
+  letter-spacing: -0.035em;
   text-transform: uppercase;
 }
 
@@ -595,11 +587,11 @@ ol {
   align-items: baseline;
   gap: 1rem;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 11vw, 3.4rem);
-  font-weight: 400;
+  font-size: clamp(1.35rem, 5.5vw, 1.9rem);
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.01em;
-  padding-block: 0.5rem;
+  letter-spacing: -0.02em;
+  padding-block: 0.85rem;
   border-bottom: 1px solid var(--line-soft);
   opacity: 0;
   transform: translateY(24px);
@@ -731,10 +723,10 @@ ol {
   z-index: 1;
   background: linear-gradient(
     180deg,
-    rgba(8, 8, 10, 0.7) 0%,
-    rgba(8, 8, 10, 0.04) 26%,
-    rgba(8, 8, 10, 0.18) 52%,
-    rgba(8, 8, 10, 0.82) 86%,
+    rgba(8, 8, 10, 0.55) 0%,
+    rgba(8, 8, 10, 0.02) 24%,
+    rgba(8, 8, 10, 0.06) 62%,
+    rgba(8, 8, 10, 0.5) 93%,
     var(--black) 100%
   );
 }
@@ -815,7 +807,7 @@ ol {
   display: block;
   font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 400;
+  font-weight: 900;
   letter-spacing: 0.01em;
 }
 
@@ -886,9 +878,9 @@ ol {
 .marquee__track span {
   font-family: var(--font-display);
   font-size: var(--step-2);
-  font-weight: 400;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.03em;
   white-space: nowrap;
   color: var(--bone);
 }
@@ -958,8 +950,8 @@ ol {
   z-index: 1;
   transform: translate(-50%, -50%);
   font-size: var(--step-5);
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-weight: 900;
+  letter-spacing: -0.04em;
   text-transform: uppercase;
   color: transparent;
   -webkit-text-stroke: 1px rgba(236, 231, 221, 0.22);
@@ -981,14 +973,14 @@ ol {
 .sequence__index {
   font-family: var(--font-display);
   font-size: var(--step-2);
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
 .sequence__name {
   font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 400;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -1326,7 +1318,7 @@ ol {
   height: 100%;
   object-fit: cover;
   object-position: 50% 22%;
-  opacity: 0.85;
+  opacity: 0.95;
 }
 
 .band__inner {
@@ -1341,9 +1333,9 @@ ol {
   inset: 0;
   z-index: 1;
   background: radial-gradient(
-      60% 60% at 50% 50%,
-      rgba(8, 8, 10, 0.3),
-      rgba(8, 8, 10, 0.9) 100%
+      65% 65% at 50% 50%,
+      rgba(8, 8, 10, 0.12),
+      rgba(8, 8, 10, 0.72) 100%
     );
 }
 
@@ -1396,8 +1388,8 @@ ol {
   display: block;
   font-family: var(--font-display);
   font-size: var(--step-2);
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-weight: 900;
+  letter-spacing: -0.03em;
   text-transform: uppercase;
 }
 
@@ -1550,7 +1542,7 @@ ol {
   padding: 1.3rem 2.5rem 1.3rem 0;
   font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 400;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.01em;
   transition: color 0.3s var(--ease);
@@ -1762,7 +1754,7 @@ ol {
   align-items: baseline;
   font-family: var(--font-display);
   font-size: var(--step-1);
-  font-weight: 400;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -1875,8 +1867,8 @@ ol {
 .price-row strong {
   font-family: var(--font-display);
   font-size: var(--step-2);
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
 .size-list {
