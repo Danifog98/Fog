@@ -1061,8 +1061,12 @@ ol {
 .card__media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: 50% 30%;
+  /* «contain», no «cover»: en las fichas originales la cabeza del modelo
+     ya sale pegada al borde superior, sin margen. Con «cover» el recuadro
+     4:5 la recortaba. Así se ve la foto entera siempre, con un poco de
+     aire alrededor en vez de rellenar el recuadro a toda costa. */
+  object-fit: contain;
+  object-position: 50% 20%;
   transition: transform 1.1s var(--ease), opacity 0.5s var(--ease);
   /* Difuminado suave mientras la colección no está a la venta. La foto se
      sigue reconociendo; al abrir la ficha se ve nítida. */
