@@ -10,6 +10,7 @@
   var C = global.DS.config;
   var store = global.DS.store;
   var E = global.DS.engine;
+  var Q = global.DS.quests;
 
   function $(s, c) {
     return (c || document).querySelector(s);
@@ -110,6 +111,8 @@
         Toast.show("System", signed(ev.amount) + " XP · " + ev.label);
       } else if (ev.type === "level") {
         Flash.push("Level Up", "LEVEL " + ev.to, "Level " + ev.from + " → " + ev.to);
+      } else if (ev.type === "quest") {
+        Toast.show("System", (ev.questType === "weekly" ? "Weekly" : "Daily") + " completada · " + ev.title);
       } else if (ev.type === "rank") {
         Flash.push("Rank Up", ev.to, "Rank " + ev.from + " → " + ev.to);
       }
@@ -147,6 +150,7 @@
       : "Rank máximo";
 
     renderStats(s.stats);
+    renderStreaks();
     renderChart();
     renderAnalysis();
   }
@@ -249,6 +253,219 @@
       main.appendChild(el("p", "entry__title entry__title--wrap", r[1]));
       row.appendChild(main);
       host.appendChild(row);
+    });
+  }
+
+  function renderStreaks() {
+    var host = $("[data-streaks]");
+    host.textContent = "";
+    E.getStreaks().forEach(function (s) {
+      var box = el("div", "streak" + (s.current > 0 ? " streak--on" : ""));
+      box.appendChild(el("p", "streak__k", s.label));
+      var v = el("p", "streak__v mono");
+      v.appendChild(document.createTextNode(String(s.current)));
+      v.appendChild(el("small", null, "D · MAX " + s.best));
+      box.appendChild(v);
+      host.appendChild(box);
+    });
+
+    var qs = Q.questStats();
+    $("[data-quest-slots]").textContent =
+      qs.completedToday + "/" + (qs.completedToday + qs.activeToday) + " misiones hoy";
+  }
+
+  /* =========================================================
+     Quests
+     ========================================================= */
+  function questCard(q) {
+    var cat = C.category(q.category);
+    var done = q.status === Q.STATUS.COMPLETED;
+    var dead = q.status === Q.STATUS.FAILED || q.status === Q.STATUS.SKIPPED;
+    var card = el("div", "quest" + (done ? " quest--done" : dead ? " quest--dead" : ""));
+    card.style.setProperty("--h", cat ? cat.hue : 200);
+
+    var top = el("div", "quest__top");
+    var left = el("div");
+    left.appendChild(el("p", "quest__title", q.title));
+    var bits = [C.categoryName(q.category), q.difficulty];
+    if (q.recurring) bits.push("RECURRENTE");
+    if (done && q.completedAt) bits.push("HECHA " + timeLabel(q.completedAt));
+    if (dead) bits.push(q.status);
+    left.appendChild(el("p", "quest__meta", bits.join(" · ")));
+    top.appendChild(left);
+    top.appendChild(el("p", "quest__xp mono", signed(q.xp) + " XP"));
+    card.appendChild(top);
+
+    if (q.description) card.appendChild(el("p", "quest__desc", q.description));
+
+    if (q.target > 1) {
+      var wrap = el("div", "quest__progress");
+      var bar = el("div", "bar bar--thin");
+      var fill = el("i", "bar__fill");
+      fill.style.width = Math.min(100, (q.progress / q.target) * 100) + "%";
+      bar.appendChild(fill);
+      wrap.appendChild(bar);
+      wrap.appendChild(el("span", "quest__count mono", q.progress + "/" + q.target));
+      card.appendChild(wrap);
+    }
+
+    if (!done && !dead) {
+      var actions = el("div", "quest__actions");
+
+      if (q.target > 1) {
+        var plus = el("button", "btn btn--ghost", "+1");
+        plus.type = "button";
+        plus.addEventListener("click", function () {
+          Q.addProgress(q.id, 1);
+        });
+        actions.appendChild(plus);
+      }
+
+      var comp = el("button", "btn", "Completar");
+      comp.type = "button";
+      comp.addEventListener("click", function () {
+        Q.completeQuest(q.id);
+      });
+      actions.appendChild(comp);
+
+      var skip = el("button", "btn btn--ghost", "Saltar");
+      skip.type = "button";
+      skip.addEventListener("click", function () {
+        Q.skipQuest(q.id);
+        Toast.show("System", "Quest saltada");
+      });
+      actions.appendChild(skip);
+
+      card.appendChild(actions);
+    }
+
+    var del = el("button", "icon-x", "✕");
+    del.type = "button";
+    del.setAttribute("aria-label", "Eliminar quest");
+    del.addEventListener("click", function () {
+      if (!global.confirm("¿Eliminar la quest y su XP asociado?")) return;
+      Q.deleteQuest(q.id);
+      Toast.show("System", "Quest eliminada");
+    });
+    if (card.querySelector(".quest__actions")) card.querySelector(".quest__actions").appendChild(del);
+    else {
+      var only = el("div", "quest__actions");
+      only.appendChild(del);
+      card.appendChild(only);
+    }
+
+    return card;
+  }
+
+  function renderQuestList(host, list, emptyText) {
+    host.textContent = "";
+    if (!list.length) {
+      var card = el("div", "card");
+      card.appendChild(el("p", "empty", emptyText));
+      host.appendChild(card);
+      return;
+    }
+    var order = { ACTIVE: 0, COMPLETED: 1, SKIPPED: 2, FAILED: 3 };
+    list
+      .slice()
+      .sort(function (a, b) {
+        return (order[a.status] || 0) - (order[b.status] || 0);
+      })
+      .forEach(function (q) {
+        host.appendChild(questCard(q));
+      });
+  }
+
+  function renderQuests() {
+    var d = Q.daily();
+    var w = Q.weekly();
+    renderQuestList($("[data-daily]"), d, "Sin daily quests · crea la primera");
+    renderQuestList($("[data-weekly]"), w, "Sin weekly quests");
+
+    var activeD = d.filter(function (q) {
+      return q.status === Q.STATUS.ACTIVE;
+    }).length;
+    $("[data-daily-count]").textContent = activeD + "/" + C.LIMITS.dailyQuests + " activas";
+    $("[data-weekly-count]").textContent = w.length
+      ? w.filter(function (q) {
+          return q.status === Q.STATUS.COMPLETED;
+        }).length +
+        "/" +
+        w.length +
+        " completadas"
+      : "";
+  }
+
+  /* ---------- Formulario de nueva quest ---------- */
+  var qDraft = { type: "daily" };
+
+  function initQuestForm() {
+    var cat = $("[data-q-cat]");
+    C.CATEGORIES.forEach(function (c) {
+      var o = el("option", null, c.stat);
+      o.value = c.id;
+      cat.appendChild(o);
+    });
+
+    var diff = $("[data-q-diff]");
+    C.DIFFICULTIES.forEach(function (d) {
+      var o = el("option", null, d);
+      o.value = d;
+      if (d === "NORMAL") o.selected = true;
+      diff.appendChild(o);
+    });
+
+    function syncXP() {
+      $("[data-q-xp]").value = Q.defaultXP(qDraft.type, diff.value);
+    }
+    syncXP();
+    diff.addEventListener("change", syncXP);
+
+    $$("[data-qtype]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        qDraft.type = b.getAttribute("data-qtype");
+        $$("[data-qtype]").forEach(function (x) {
+          x.setAttribute("aria-pressed", x === b ? "true" : "false");
+        });
+        syncXP();
+      });
+    });
+
+    $("[data-new-toggle]").addEventListener("click", function () {
+      var form = $("[data-new-form]");
+      form.hidden = !form.hidden;
+      if (!form.hidden) $("[data-q-title]").focus();
+    });
+
+    $("[data-q-save]").addEventListener("click", function () {
+      var res = Q.createQuest({
+        type: qDraft.type,
+        title: $("[data-q-title]").value,
+        description: $("[data-q-desc]").value,
+        category: cat.value,
+        difficulty: diff.value,
+        xp: $("[data-q-xp]").value,
+        target: $("[data-q-target]").value,
+        recurring: $("[data-q-recurring]").checked
+      });
+
+      if (!res.ok) {
+        var msg =
+          res.reason === "limit"
+            ? "Máximo " + C.LIMITS.dailyQuests + " daily quests activas"
+            : res.reason === "title"
+            ? "Falta el título"
+            : "No se pudo crear la quest";
+        Toast.show("System", msg);
+        return;
+      }
+
+      $("[data-q-title]").value = "";
+      $("[data-q-desc]").value = "";
+      $("[data-q-target]").value = "1";
+      $("[data-q-recurring]").checked = false;
+      $("[data-new-form]").hidden = true;
+      Toast.show("System", "Quest creada · " + res.quest.title);
     });
   }
 
@@ -517,6 +734,7 @@
   /* Cada vista se dibuja sola: no se renderiza lo que no se ve. */
   function render() {
     if (current === "dashboard") renderDashboard();
+    else if (current === "quests") renderQuests();
     else if (current === "log") {
       renderCats();
       renderActs();
@@ -526,7 +744,9 @@
   }
 
   function init() {
+    Q.rollover();
     renderFilter();
+    initQuestForm();
 
     $$("[data-go]").forEach(function (b) {
       b.addEventListener("click", function () {

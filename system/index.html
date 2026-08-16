@@ -22,6 +22,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg>
         Estado
       </button>
+      <button class="nav__btn" type="button" data-go="quests">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M4 12h9M4 17h6M16 7.5l2 2 4-4M16 16.5l2 2 4-4"/></svg>
+        Misiones
+      </button>
       <button class="nav__btn" type="button" data-go="log">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
         Registrar
@@ -82,6 +86,12 @@
         </div>
 
         <div class="section-head">
+          <p class="label">Rachas</p>
+          <p class="label" data-quest-slots></p>
+        </div>
+        <div class="streaks" data-streaks></div>
+
+        <div class="section-head">
           <p class="label">Stats</p>
           <p class="label" data-rank-next></p>
         </div>
@@ -100,6 +110,71 @@
           <p class="label">Análisis del sistema</p>
         </div>
         <div class="card" data-analysis></div>
+      </section>
+
+      <!-- ============ MISIONES ============ -->
+      <section class="view" data-view="quests" hidden>
+        <div class="section-head" style="margin-top:14px">
+          <p class="label">Daily quests</p>
+          <p class="label" data-daily-count></p>
+        </div>
+        <div data-daily></div>
+
+        <div class="section-head">
+          <p class="label">Weekly quests</p>
+          <p class="label" data-weekly-count></p>
+        </div>
+        <div data-weekly></div>
+
+        <div class="section-head">
+          <p class="label">Nueva quest</p>
+          <button class="ghost-btn" type="button" data-new-toggle>Crear</button>
+        </div>
+        <div class="card" data-new-form hidden>
+          <div class="chips" data-q-type>
+            <button class="chip" type="button" data-qtype="daily" aria-pressed="true">Daily</button>
+            <button class="chip" type="button" data-qtype="weekly">Weekly</button>
+          </div>
+
+          <label class="field">
+            <span>Título</span>
+            <input data-q-title placeholder="Entrenar 60 minutos" />
+          </label>
+
+          <div class="row-2">
+            <label class="field">
+              <span>Categoría</span>
+              <select data-q-cat></select>
+            </label>
+            <label class="field">
+              <span>Dificultad</span>
+              <select data-q-diff></select>
+            </label>
+          </div>
+
+          <div class="row-2">
+            <label class="field">
+              <span>XP</span>
+              <input data-q-xp type="number" inputmode="numeric" />
+            </label>
+            <label class="field">
+              <span>Objetivo (veces)</span>
+              <input data-q-target type="number" inputmode="numeric" value="1" min="1" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Descripción (opcional)</span>
+            <input data-q-desc placeholder="Pierna · 60 min" />
+          </label>
+
+          <label class="check">
+            <input type="checkbox" data-q-recurring />
+            <span>Repetir cada periodo</span>
+          </label>
+
+          <button class="btn" type="button" data-q-save style="margin-top:14px">Crear quest</button>
+        </div>
       </section>
 
       <!-- ============ REGISTRAR ============ -->
@@ -158,6 +233,7 @@
     <script src="js/config.js"></script>
     <script src="js/store.js"></script>
     <script src="js/engine.js"></script>
+    <script src="js/quests.js"></script>
     <script src="js/ui.js"></script>
   </body>
 </html>

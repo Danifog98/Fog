@@ -146,6 +146,28 @@
     recommendations: 3
   };
 
+  /* ---------- Quests ---------- */
+  var QUESTS = {
+    weeklyMultiplier: 2.5, // XP por defecto de una weekly = dificultad · esto
+    /* Bonus de DISCIPLINA al cumplir una misión (spec: diaria 100 / semanal 500).
+       No se suma si la propia quest ya es de disciplina. */
+    disciplineBonus: { daily: 100, weekly: 500 }
+  };
+
+  /* ---------- Streaks ----------
+     grace: días que se pueden fallar sin romper la racha.
+     La racha motiva; no castiga un día de descanso.                   */
+  var STREAKS = {
+    grace: 1,
+    tracked: [
+      { id: "daily",     label: "RACHA DIARIA", categories: null },
+      { id: "physical",  label: "GYM",          categories: ["physical", "combat"] },
+      { id: "tech",      label: "TECNOLOGÍA",   categories: ["tech"] },
+      { id: "knowledge", label: "ESTUDIO",      categories: ["knowledge"] },
+      { id: "business",  label: "NEGOCIOS",     categories: ["business"] }
+    ]
+  };
+
   /* ---------- Helpers de configuración ---------- */
   function category(id) {
     for (var i = 0; i < CATEGORIES.length; i++) {
@@ -197,6 +219,8 @@
     STATS: STATS,
     POWER: POWER,
     LIMITS: LIMITS,
+    QUESTS: QUESTS,
+    STREAKS: STREAKS,
     category: category,
     categoryName: categoryName,
     action: action,

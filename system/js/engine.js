@@ -470,6 +470,86 @@
     };
   }
 
+  /* =========================================================
+     Streaks
+     Se derivan de las transacciones: no se guarda ningún contador.
+     `grace` permite fallar días sueltos sin romper la racha; dos
+     fallos consecutivos sí la cortan.
+     ========================================================= */
+  function activeDays(categories) {
+    var set = {};
+    store.get().xp.forEach(function (t) {
+      if ((Number(t.amount) || 0) <= 0) return; // una penalización no mantiene racha
+      if (categories && categories.indexOf(t.category) === -1) return;
+      set[dayKey(t.ts)] = true;
+    });
+    return set;
+  }
+
+  function streak(categories, now) {
+    var set = activeDays(categories);
+    var grace = C.STREAKS.grace;
+    now = now || Date.now();
+    var today = startOfDay(now).getTime();
+
+    var keys = Object.keys(set);
+    if (!keys.length) return { current: 0, best: 0, days: 0, active: false, last: null };
+
+    /* Racha actual: hacia atrás desde hoy. */
+    var current = 0,
+      miss = 0;
+    for (var i = 0; i < 400; i++) {
+      var k = dayKey(today - i * DAY);
+      if (set[k]) {
+        current++;
+        miss = 0;
+      } else {
+        if (i === 0) continue; // el día en curso aún no cuenta como fallo
+        miss++;
+        if (miss > grace) break;
+      }
+    }
+
+    /* Mejor racha histórica con la misma regla. */
+    var sorted = keys
+      .map(function (k) {
+        var p = k.split("-");
+        return new Date(+p[0], +p[1] - 1, +p[2]).getTime();
+      })
+      .sort(function (a, b) {
+        return a - b;
+      });
+    var best = 0,
+      run = 0,
+      prev = null;
+    sorted.forEach(function (ts) {
+      if (prev === null) run = 1;
+      else {
+        var gap = Math.round((ts - prev) / DAY) - 1;
+        run = gap > grace ? 1 : run + 1;
+      }
+      if (run > best) best = run;
+      prev = ts;
+    });
+
+    return {
+      current: current,
+      best: Math.max(best, current),
+      days: keys.length,
+      active: !!set[dayKey(today)],
+      last: sorted[sorted.length - 1] || null
+    };
+  }
+
+  function getStreaks() {
+    return C.STREAKS.tracked.map(function (t) {
+      var s = streak(t.categories);
+      s.id = t.id;
+      s.label = t.label;
+      return s;
+    });
+  }
+
   /* Serie de XP por día para los gráficos. */
   function xpSeries(days) {
     days = days || 14;
@@ -504,6 +584,8 @@
     activityLog: activityLog,
     getAnalytics: getAnalytics,
     xpSeries: xpSeries,
+    streak: streak,
+    getStreaks: getStreaks,
     /* eventos */
     on: on,
     emit: emit,

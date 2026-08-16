@@ -451,6 +451,189 @@ h3 {
   letter-spacing: 0.12em;
 }
 
+/* ---------- Rachas ---------- */
+.streaks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+.streak {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 10px 11px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.streak__k {
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.streak__v {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-top: 3px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.streak__v small {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--faint);
+  letter-spacing: 0.1em;
+}
+
+.streak--on .streak__v {
+  color: var(--accent);
+}
+
+.streak--on .streak__k {
+  color: var(--accent);
+  opacity: 0.75;
+}
+
+/* ---------- Quests ---------- */
+.quest {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.022);
+  border-left: 2px solid hsl(var(--h) 80% 55% / 0.6);
+}
+
+.quest + .quest {
+  margin-top: 9px;
+}
+
+.quest--done {
+  opacity: 0.5;
+}
+
+.quest--dead {
+  opacity: 0.4;
+}
+
+.quest__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.quest__title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.quest--done .quest__title {
+  text-decoration: line-through;
+}
+
+.quest__xp {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.quest__meta {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.quest__desc {
+  font-size: 12px;
+  color: var(--dim);
+  margin: 6px 0 0;
+}
+
+.quest__actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 11px;
+  align-items: center;
+}
+
+.quest__actions .btn {
+  padding: 9px 12px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  width: auto;
+  flex: 1 1 auto;
+}
+
+.icon-x {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--faint);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  padding: 9px 11px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.icon-x:hover {
+  color: var(--bad);
+  border-color: rgba(255, 122, 122, 0.4);
+}
+
+.quest__progress {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 9px;
+}
+
+.quest__progress .bar {
+  flex: 1 1 auto;
+}
+
+.quest__count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: 0.08em;
+  flex: 0 0 auto;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--dim);
+  cursor: pointer;
+}
+
+.check input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
+  -webkit-appearance: auto;
+  appearance: auto;
+  padding: 0;
+}
+
 /* ---------- Registro rápido ---------- */
 .chips {
   display: flex;
