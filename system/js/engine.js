@@ -417,9 +417,13 @@
   /* =========================================================
      Analíticas
      ========================================================= */
+  /* Rangos: hoy (natural), 7d y 30d (ventana móvil), semana y mes
+     naturales, y todo. */
   function rangeStart(range, now) {
     now = now || Date.now();
     if (range === "today") return startOfDay(now).getTime();
+    if (range === "7d") return startOfDay(now - 6 * DAY).getTime();
+    if (range === "30d") return startOfDay(now - 29 * DAY).getTime();
     if (range === "week") return startOfWeek(now).getTime();
     if (range === "month") return startOfMonth(now).getTime();
     return 0;
@@ -432,6 +436,7 @@
     var from = rangeStart(range);
 
     var xpInRange = 0;
+    var activities = 0;
     var byCategory = {};
     var problems = 0;
     C.CATEGORIES.forEach(function (c) {
@@ -442,9 +447,21 @@
       if (new Date(t.ts).getTime() < from) return;
       var a = Number(t.amount) || 0;
       xpInRange += a;
+      activities++;
       if (byCategory[t.category] !== undefined) byCategory[t.category] += a;
       if (t.category === "problems") problems++;
     });
+
+    /* Quests y bosses cerrados dentro del rango. */
+    function inRange(iso) {
+      return iso ? new Date(iso).getTime() >= from : false;
+    }
+    var questsDone = s.quests.filter(function (q) {
+      return q.status === "COMPLETED" && (from === 0 || inRange(q.completedAt));
+    }).length;
+    var bossesDown = s.bosses.filter(function (b) {
+      return b.status === "DEFEATED" && (from === 0 || inRange(b.defeatedAt));
+    }).length;
 
     var sorted = snap.stats.slice().sort(function (a, b) {
       return b.mastery - a.mastery;
@@ -458,8 +475,12 @@
       from: from,
       xp: xpInRange,
       totalXP: snap.totalXP,
+      activities: activities,
+      questsCompleted: questsDone,
+      bossesDefeated: bossesDown,
       byCategory: byCategory,
       problemsSolved: problems,
+      streak: streak(null),
       strongest: sorted[0] || null,
       weakest: sorted[sorted.length - 1] || null,
       fastest: byGrowth[0] || null,

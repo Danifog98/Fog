@@ -88,6 +88,8 @@
           </div>
         </div>
 
+        <div data-alerts></div>
+
         <div class="section-head">
           <p class="label">Rachas</p>
           <p class="label" data-quest-slots></p>
@@ -272,6 +274,143 @@
         <div class="menu" data-menu></div>
       </section>
 
+      <!-- ============ ANÁLISIS ============ -->
+      <section class="view" data-view="analytics" hidden>
+        <div class="section-head" style="margin-top:14px">
+          <p class="label">Análisis</p>
+        </div>
+        <div class="chips" data-ranges></div>
+
+        <div class="kpis" data-kpis style="margin-top:12px"></div>
+
+        <div class="section-head">
+          <p class="label">XP por día</p>
+          <p class="label" data-series-label></p>
+        </div>
+        <div class="card">
+          <div class="chart" data-a-chart></div>
+          <div class="chart__x" data-a-chart-x></div>
+        </div>
+
+        <div class="section-head">
+          <p class="label">XP por categoría</p>
+        </div>
+        <div class="card" data-cat-bars></div>
+
+        <div class="section-head">
+          <p class="label">Crecimiento de stats</p>
+        </div>
+        <div class="card" data-growth></div>
+      </section>
+
+      <!-- ============ FINANZAS ============ -->
+      <section class="view" data-view="finance" hidden>
+        <div class="section-head" style="margin-top:14px">
+          <p class="label">Patrimonio</p>
+          <button class="ghost-btn" type="button" data-mask-toggle>Ocultar cifras</button>
+        </div>
+        <div class="card" data-fin-summary></div>
+
+        <div class="section-head">
+          <p class="label">Milestones</p>
+          <p class="label" data-fin-next></p>
+        </div>
+        <div class="card" data-fin-milestones></div>
+
+        <div class="section-head">
+          <p class="label">Nuevo movimiento</p>
+        </div>
+        <div class="card">
+          <div class="chips" data-fin-types></div>
+          <div class="row-2">
+            <label class="field">
+              <span>Importe</span>
+              <input data-fin-amount type="number" inputmode="decimal" placeholder="200" />
+            </label>
+            <label class="field">
+              <span>Nota</span>
+              <input data-fin-note placeholder="Opcional" />
+            </label>
+          </div>
+          <button class="btn" type="button" data-fin-save style="margin-top:14px">Registrar movimiento</button>
+        </div>
+
+        <div class="section-head">
+          <p class="label">Movimientos</p>
+          <p class="label" data-fin-count></p>
+        </div>
+        <div data-fin-list></div>
+      </section>
+
+      <!-- ============ TRADING ============ -->
+      <section class="view" data-view="trading" hidden>
+        <div class="section-head" style="margin-top:14px">
+          <p class="label">Disciplina</p>
+          <p class="label" data-tr-count></p>
+        </div>
+        <div class="card" data-tr-summary></div>
+
+        <div class="section-head">
+          <p class="label">Nueva operación</p>
+          <button class="ghost-btn" type="button" data-tr-toggle>Registrar</button>
+        </div>
+        <div class="card" data-tr-form hidden>
+          <div class="row-2">
+            <label class="field" style="margin-top:0">
+              <span>Estrategia</span>
+              <input data-tr-strategy placeholder="Ruptura de rango" />
+            </label>
+            <label class="field" style="margin-top:0">
+              <span>Setup</span>
+              <input data-tr-setup placeholder="H4 · retest" />
+            </label>
+          </div>
+          <div class="row-2">
+            <label class="field">
+              <span>Entrada</span>
+              <input data-tr-entry placeholder="1.0820" />
+            </label>
+            <label class="field">
+              <span>Salida</span>
+              <input data-tr-exit placeholder="1.0865" />
+            </label>
+          </div>
+          <div class="row-2">
+            <label class="field">
+              <span>Resultado</span>
+              <select data-tr-result></select>
+            </label>
+            <label class="field">
+              <span>Riesgo</span>
+              <input data-tr-risk placeholder="1% · 1R" />
+            </label>
+          </div>
+          <label class="field">
+            <span>Estado emocional</span>
+            <select data-tr-emotion></select>
+          </label>
+          <label class="field">
+            <span>Notas</span>
+            <textarea data-tr-notes placeholder="Qué salió bien y qué no"></textarea>
+          </label>
+          <label class="check">
+            <input type="checkbox" data-tr-rules checked />
+            <span>Respeté mis reglas de riesgo</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" data-tr-reviewed />
+            <span>He revisado la operación</span>
+          </label>
+          <p class="form-hint">El XP premia registrar y respetar las reglas. El resultado no da XP.</p>
+          <button class="btn" type="button" data-tr-save style="margin-top:12px">Guardar operación</button>
+        </div>
+
+        <div class="section-head">
+          <p class="label">Operaciones</p>
+        </div>
+        <div data-tr-list></div>
+      </section>
+
       <!-- ============ HISTORIAL ============ -->
       <section class="view" data-view="history" hidden>
         <div class="section-head" style="margin-top:14px">
@@ -304,6 +443,9 @@
     <script src="js/quests.js"></script>
     <script src="js/bosses.js"></script>
     <script src="js/progress.js"></script>
+    <script src="js/finance.js"></script>
+    <script src="js/trading.js"></script>
+    <script src="js/recommend.js"></script>
     <script src="js/ui.js"></script>
   </body>
 </html>

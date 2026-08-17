@@ -13,6 +13,9 @@
   var Q = global.DS.quests;
   var B = global.DS.bosses;
   var P = global.DS.progress;
+  var F = global.DS.finance;
+  var T = global.DS.trading;
+  var R = global.DS.recommend;
 
   function $(s, c) {
     return (c || document).querySelector(s);
@@ -121,6 +124,8 @@
         Flash.push("Boss Defeated", ev.name, signed(ev.xp) + " XP");
       } else if (ev.type === "achievement") {
         Toast.show("Logro desbloqueado", ev.name + " · " + ev.desc);
+      } else if (ev.type === "milestone") {
+        Flash.push("Milestone", F.fmt(ev.value), "Patrimonio alcanzado");
       } else if (ev.type === "skill") {
         Toast.show("Skill desbloqueada", ev.name + " · " + ev.desc);
       }
@@ -170,6 +175,7 @@
       ? "Rank " + s.nextRank.id + " a " + num(s.nextRank.min) + " power"
       : "Rank máximo";
 
+    renderAlerts();
     renderStats(s.stats);
     renderStreaks();
     renderChart();
@@ -227,29 +233,32 @@
     });
   }
 
-  function renderChart() {
-    var series = E.xpSeries(14);
+  function drawChart(host, xs, series) {
     var max = series.reduce(function (m, d) {
       return Math.max(m, d.xp);
     }, 0);
-    var host = $("[data-chart]");
-    var xs = $("[data-chart-x]");
     host.textContent = "";
     xs.textContent = "";
+    var step = series.length > 20 ? 5 : 2;
 
     series.forEach(function (d, i) {
       var col = el("div", "chart__col");
       var bar = el("i", "chart__bar");
-      var h = max > 0 ? Math.max(2, (d.xp / max) * 100) : 2;
-      bar.style.height = h + "%";
+      bar.style.height = (max > 0 ? Math.max(2, (d.xp / max) * 100) : 2) + "%";
       if (!d.xp) bar.setAttribute("data-zero", "1");
       bar.title = num(d.xp) + " XP";
       col.appendChild(bar);
       host.appendChild(col);
 
       var day = new Date(d.ts).getDate();
-      xs.appendChild(el("span", null, i % 2 === 0 || i === series.length - 1 ? String(day) : ""));
+      xs.appendChild(
+        el("span", null, i % step === 0 || i === series.length - 1 ? String(day) : "")
+      );
     });
+  }
+
+  function renderChart() {
+    drawChart($("[data-chart]"), $("[data-chart-x]"), E.xpSeries(14));
   }
 
   function renderAnalysis() {
@@ -289,6 +298,60 @@
       main.appendChild(el("p", "entry__title entry__title--wrap", r[1]));
       row.appendChild(main);
       host.appendChild(row);
+    });
+  }
+
+  /* =========================================================
+     Alertas del sistema (recomendaciones)
+     ========================================================= */
+  function renderAlerts() {
+    var host = $("[data-alerts]");
+    host.textContent = "";
+    var recs = R.visibleRecommendations();
+    if (!recs.length) return;
+
+    var head = el("div", "section-head");
+    head.appendChild(el("p", "label", "System alert"));
+    head.appendChild(el("p", "label", recs.length === 1 ? "1 aviso" : recs.length + " avisos"));
+    host.appendChild(head);
+
+    recs.forEach(function (rec) {
+      var cat = C.category(rec.category);
+      var card = el("div", "alert");
+      card.style.setProperty("--h", cat ? cat.hue : 200);
+
+      card.appendChild(el("p", "alert__kicker", rec.kicker));
+      card.appendChild(el("p", "alert__detail", rec.detail));
+      card.appendChild(el("p", "alert__title", rec.title));
+      card.appendChild(
+        el("p", "alert__reward mono", signed(rec.xp) + " XP · " + C.categoryName(rec.category))
+      );
+
+      var actions = el("div", "alert__actions");
+      var ok = el("button", "btn", "Aceptar quest");
+      ok.type = "button";
+      ok.addEventListener("click", function () {
+        var res = R.acceptRecommendation(rec);
+        Toast.show(
+          "System",
+          res.ok
+            ? "Quest creada · " + rec.title
+            : res.reason === "limit"
+            ? "Máximo " + C.LIMITS.dailyQuests + " daily quests activas"
+            : "No se pudo crear la quest"
+        );
+      });
+      actions.appendChild(ok);
+
+      var no = el("button", "btn btn--ghost", "Descartar");
+      no.type = "button";
+      no.addEventListener("click", function () {
+        R.dismiss(rec.id);
+      });
+      actions.appendChild(no);
+      card.appendChild(actions);
+
+      host.appendChild(card);
     });
   }
 
@@ -749,11 +812,421 @@
   }
 
   /* =========================================================
+     Análisis
+     ========================================================= */
+  var RANGES = [
+    { id: "today", label: "Hoy", days: 1 },
+    { id: "7d", label: "7 días", days: 7 },
+    { id: "30d", label: "30 días", days: 30 },
+    { id: "all", label: "Todo", days: 30 }
+  ];
+  var range = "7d";
+
+  function renderRanges() {
+    var host = $("[data-ranges]");
+    host.textContent = "";
+    RANGES.forEach(function (r) {
+      var b = el("button", "chip", r.label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", range === r.id ? "true" : "false");
+      b.addEventListener("click", function () {
+        range = r.id;
+        renderAnalytics();
+      });
+      host.appendChild(b);
+    });
+  }
+
+  function currentRange() {
+    for (var i = 0; i < RANGES.length; i++) {
+      if (RANGES[i].id === range) return RANGES[i];
+    }
+    return RANGES[1];
+  }
+
+  function renderAnalytics() {
+    renderRanges();
+    var a = E.getAnalytics(range);
+
+    var kpis = [
+      ["XP", signed(a.xp), true],
+      ["Actividades", num(a.activities), false],
+      ["Quests", num(a.questsCompleted), false],
+      ["Bosses", num(a.bossesDefeated), false],
+      ["Problemas", num(a.problemsSolved), false],
+      ["Racha", a.streak.current + " D", false]
+    ];
+    var host = $("[data-kpis]");
+    host.textContent = "";
+    kpis.forEach(function (k) {
+      var box = el("div", "kpi" + (k[2] ? " kpi--accent" : ""));
+      box.appendChild(el("p", "kpi__k", k[0]));
+      box.appendChild(el("p", "kpi__v mono", k[1]));
+      host.appendChild(box);
+    });
+
+    /* Serie diaria del rango elegido. */
+    var days = currentRange().days;
+    var series = E.xpSeries(Math.max(7, days));
+    $("[data-series-label]").textContent = series.length + " días";
+    drawChart($("[data-a-chart]"), $("[data-a-chart-x]"), series);
+
+    /* XP por categoría dentro del rango. */
+    var bars = $("[data-cat-bars]");
+    bars.textContent = "";
+    var maxCat = 0;
+    C.CATEGORIES.forEach(function (c) {
+      maxCat = Math.max(maxCat, a.byCategory[c.id] || 0);
+    });
+    if (maxCat <= 0) {
+      bars.appendChild(el("p", "empty", "Sin XP en este rango"));
+    } else {
+      C.CATEGORIES.slice()
+        .sort(function (x, y) {
+          return (a.byCategory[y.id] || 0) - (a.byCategory[x.id] || 0);
+        })
+        .forEach(function (c) {
+          var v = a.byCategory[c.id] || 0;
+          var row = el("div", "cbar");
+          row.style.setProperty("--h", c.hue);
+          var top = el("div", "cbar__top");
+          top.appendChild(el("span", "cbar__name", c.stat));
+          top.appendChild(el("span", "cbar__v mono", signed(v) + " XP"));
+          row.appendChild(top);
+          var track = el("div", "cbar__track");
+          var fill = el("span", "cbar__fill");
+          fill.style.width = (v > 0 ? Math.max(2, (v / maxCat) * 100) : 0) + "%";
+          track.appendChild(fill);
+          row.appendChild(track);
+          bars.appendChild(row);
+        });
+    }
+
+    /* Crecimiento de stats a 7 días. */
+    var g = $("[data-growth]");
+    g.textContent = "";
+    var stats = a.snapshot.stats.slice().sort(function (x, y) {
+      return y.growth - x.growth;
+    });
+    stats.forEach(function (st, i) {
+      var row = el("div", "entry");
+      if (i === stats.length - 1) row.style.borderBottom = "0";
+      var dot = el("i", "entry__dot");
+      dot.style.setProperty("--h", st.hue);
+      row.appendChild(dot);
+      var main = el("div", "entry__main");
+      main.appendChild(el("p", "entry__title", st.stat));
+      main.appendChild(
+        el("p", "entry__meta", "LV " + st.level + " · " + num(st.xp) + " XP" + (st.neglected && st.xp > 0 ? " · " + st.daysIdle + "D SIN ACTIVIDAD" : ""))
+      );
+      row.appendChild(main);
+      var v = el("p", "entry__xp mono", st.growth > 0 ? "+" + pct1(st.growth) + "%" : "—");
+      if (st.growth <= 0) v.style.color = "var(--faint)";
+      row.appendChild(v);
+      g.appendChild(row);
+    });
+  }
+
+  /* =========================================================
+     Finanzas
+     ========================================================= */
+  var finType = "saving";
+
+  /* Las cifras se pueden ocultar: la app puede abrirse en cualquier sitio. */
+  function masked() {
+    return !!store.get().settings.maskMoney;
+  }
+  function money(n) {
+    return masked() ? "••••" : F.fmt(n);
+  }
+
+  function renderFinance() {
+    var sum = F.summary();
+    var host = $("[data-fin-summary]");
+    host.textContent = "";
+
+    var top = el("div", "worth");
+    var left = el("div");
+    left.appendChild(el("p", "label", "Patrimonio"));
+    left.appendChild(el("p", "worth__v mono", money(sum.netWorth)));
+    top.appendChild(left);
+    var flow = el("div");
+    flow.style.textAlign = "right";
+    flow.appendChild(el("p", "label", "Flujo neto"));
+    flow.appendChild(el("p", "mini__v mono", money(sum.flow)));
+    top.appendChild(flow);
+    host.appendChild(top);
+
+    var grid = el("div", "worth__grid");
+    [
+      ["Ahorro", sum.saving],
+      ["Inversión", sum.investment],
+      ["Ingresos", sum.income],
+      ["Gastos", sum.expense]
+    ].forEach(function (r) {
+      var box = el("div", "mini");
+      box.appendChild(el("p", "mini__k", r[0]));
+      box.appendChild(el("p", "mini__v mono", money(r[1])));
+      grid.appendChild(box);
+    });
+    host.appendChild(grid);
+
+    $("[data-mask-toggle]").textContent = masked() ? "Mostrar cifras" : "Ocultar cifras";
+
+    /* Milestones */
+    var ms = $("[data-fin-milestones]");
+    ms.textContent = "";
+    F.milestones().forEach(function (m) {
+      var row = el("div", "ms" + (m.reached ? " ms--on" : ""));
+      row.appendChild(el("span", "ms__v mono", masked() ? "••••" : F.fmt(m.value)));
+      var bar = el("div", "bar bar--thin");
+      var fill = el("i", "bar__fill");
+      fill.style.width = Math.round(m.progress * 100) + "%";
+      bar.appendChild(fill);
+      row.appendChild(bar);
+      row.appendChild(el("span", "ms__tag", m.reached ? "HECHO" : Math.round(m.progress * 100) + "%"));
+      ms.appendChild(row);
+    });
+    var next = F.nextMilestone();
+    $("[data-fin-next]").textContent = next
+      ? "siguiente " + (masked() ? "••••" : F.fmt(next))
+      : "todos alcanzados";
+
+    /* Chips de tipo */
+    var chips = $("[data-fin-types]");
+    chips.textContent = "";
+    C.FINANCE.types.forEach(function (t) {
+      var b = el("button", "chip", t.label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", finType === t.id ? "true" : "false");
+      b.addEventListener("click", function () {
+        finType = t.id;
+        renderFinance();
+      });
+      chips.appendChild(b);
+    });
+
+    /* Lista */
+    var list = $("[data-fin-list]");
+    list.textContent = "";
+    var entries = F.all()
+      .slice()
+      .sort(function (a, b) {
+        return new Date(b.ts) - new Date(a.ts);
+      });
+    $("[data-fin-count]").textContent = entries.length ? entries.length + " registros" : "";
+
+    if (!entries.length) {
+      emptyState(list, "Sin movimientos", null, null);
+      return;
+    }
+
+    var card = el("div", "card");
+    card.style.padding = "13px";
+    entries.forEach(function (e, i) {
+      var def = F.typeDef(e.type);
+      var row = el("div", "entry");
+      if (i === entries.length - 1) row.style.borderBottom = "0";
+      var main = el("div", "entry__main");
+      main.appendChild(el("p", "entry__title", def ? def.label : e.type));
+      main.appendChild(
+        el("p", "entry__meta", [dayLabel(e.ts), timeLabel(e.ts), e.note].filter(Boolean).join(" · "))
+      );
+      row.appendChild(main);
+      var v = el("p", "entry__xp mono", (def && def.sign < 0 ? "−" : "+") + (masked() ? "••••" : F.fmt(e.amount)));
+      if (def && def.sign < 0) v.setAttribute("data-neg", "1");
+      row.appendChild(v);
+      var del = el("button", "entry__del", "✕");
+      del.type = "button";
+      del.setAttribute("aria-label", "Eliminar movimiento");
+      del.addEventListener("click", function () {
+        if (!global.confirm("¿Eliminar el movimiento y su XP?")) return;
+        F.deleteEntry(e.id);
+      });
+      row.appendChild(del);
+      card.appendChild(row);
+    });
+    list.appendChild(card);
+  }
+
+  function initFinance() {
+    $("[data-mask-toggle]").addEventListener("click", function () {
+      store.commit(function (s) {
+        s.settings.maskMoney = !s.settings.maskMoney;
+      });
+    });
+
+    $("[data-fin-save]").addEventListener("click", function () {
+      var res = F.addEntry({
+        type: finType,
+        amount: $("[data-fin-amount]").value,
+        note: $("[data-fin-note]").value
+      });
+      if (!res.ok) {
+        Toast.show("System", res.reason === "amount" ? "Falta el importe" : "No se pudo registrar");
+        return;
+      }
+      $("[data-fin-amount]").value = "";
+      $("[data-fin-note]").value = "";
+      Toast.show("System", "Movimiento registrado");
+    });
+  }
+
+  /* =========================================================
+     Trading
+     ========================================================= */
+  function renderTrading() {
+    var st = T.stats();
+    var host = $("[data-tr-summary]");
+    host.textContent = "";
+
+    var top = el("div", "worth");
+    var left = el("div");
+    left.appendChild(el("p", "label", "Reglas respetadas"));
+    left.appendChild(el("p", "worth__v mono", pct1(st.discipline) + "%"));
+    top.appendChild(left);
+    var right = el("div");
+    right.style.textAlign = "right";
+    right.appendChild(el("p", "label", "Revisadas"));
+    right.appendChild(el("p", "mini__v mono", st.reviewed + "/" + st.total));
+    top.appendChild(right);
+    host.appendChild(top);
+
+    var grid = el("div", "worth__grid");
+    [
+      ["Operaciones", st.total],
+      ["Con reglas", st.followed],
+      ["Ganadoras", st.byResult.WIN],
+      ["Perdedoras", st.byResult.LOSS]
+    ].forEach(function (r) {
+      var box = el("div", "mini");
+      box.appendChild(el("p", "mini__k", r[0]));
+      box.appendChild(el("p", "mini__v mono", num(r[1])));
+      grid.appendChild(box);
+    });
+    host.appendChild(grid);
+
+    $("[data-tr-count]").textContent = st.total ? st.total + " operaciones" : "";
+
+    var list = $("[data-tr-list]");
+    list.textContent = "";
+    var trades = T.all()
+      .slice()
+      .sort(function (a, b) {
+        return new Date(b.ts) - new Date(a.ts);
+      });
+
+    if (!trades.length) {
+      emptyState(list, "Sin operaciones registradas", "Registrar operación", function () {
+        $("[data-tr-form]").hidden = false;
+        $("[data-tr-strategy]").focus();
+      });
+      return;
+    }
+
+    trades.forEach(function (t) {
+      var card = el("div", "trade " + (t.rulesFollowed ? "trade--ok" : "trade--broken"));
+      var top2 = el("div", "trade__top");
+      top2.appendChild(el("p", "trade__name", t.strategy));
+      var res = el("p", "trade__res", t.result);
+      res.style.color =
+        t.result === "WIN" ? "var(--good)" : t.result === "LOSS" ? "var(--bad)" : "var(--faint)";
+      top2.appendChild(res);
+      card.appendChild(top2);
+
+      var bits = [dayLabel(t.ts)];
+      if (t.setup) bits.push(t.setup);
+      if (t.entry) bits.push("IN " + t.entry);
+      if (t.exit) bits.push("OUT " + t.exit);
+      if (t.risk) bits.push("RIESGO " + t.risk);
+      if (t.emotion) bits.push(t.emotion);
+      card.appendChild(el("p", "trade__meta", bits.join(" · ")));
+
+      if (t.notes) card.appendChild(el("p", "trade__notes", t.notes));
+
+      var foot = el("div", "trade__foot");
+      var pills = el("div");
+      pills.style.display = "flex";
+      pills.style.gap = "6px";
+      pills.appendChild(
+        el("span", "pill " + (t.rulesFollowed ? "pill--ok" : "pill--bad"), t.rulesFollowed ? "REGLAS OK" : "REGLAS ROTAS")
+      );
+      if (t.reviewed) pills.appendChild(el("span", "pill", "REVISADA"));
+      foot.appendChild(pills);
+
+      var del = el("button", "icon-x", "✕");
+      del.type = "button";
+      del.setAttribute("aria-label", "Eliminar operación");
+      del.addEventListener("click", function () {
+        if (!global.confirm("¿Eliminar la operación y su XP?")) return;
+        T.deleteTrade(t.id);
+      });
+      foot.appendChild(del);
+      card.appendChild(foot);
+
+      list.appendChild(card);
+    });
+  }
+
+  function initTrading() {
+    var res = $("[data-tr-result]");
+    C.TRADING.results.forEach(function (r) {
+      var o = el("option", null, r);
+      o.value = r;
+      if (r === "BREAKEVEN") o.selected = true;
+      res.appendChild(o);
+    });
+    var emo = $("[data-tr-emotion]");
+    var none = el("option", null, "—");
+    none.value = "";
+    emo.appendChild(none);
+    C.TRADING.emotions.forEach(function (e) {
+      var o = el("option", null, e);
+      o.value = e;
+      emo.appendChild(o);
+    });
+
+    $("[data-tr-toggle]").addEventListener("click", function () {
+      var f = $("[data-tr-form]");
+      f.hidden = !f.hidden;
+      if (!f.hidden) $("[data-tr-strategy]").focus();
+    });
+
+    $("[data-tr-save]").addEventListener("click", function () {
+      var r = T.addTrade({
+        strategy: $("[data-tr-strategy]").value,
+        setup: $("[data-tr-setup]").value,
+        entry: $("[data-tr-entry]").value,
+        exit: $("[data-tr-exit]").value,
+        result: res.value,
+        risk: $("[data-tr-risk]").value,
+        emotion: emo.value,
+        notes: $("[data-tr-notes]").value,
+        rulesFollowed: $("[data-tr-rules]").checked,
+        reviewed: $("[data-tr-reviewed]").checked
+      });
+      if (!r.ok) {
+        Toast.show("System", "Falta la estrategia");
+        return;
+      }
+      ["strategy", "setup", "entry", "exit", "risk", "notes"].forEach(function (k) {
+        $("[data-tr-" + k + "]").value = "";
+      });
+      $("[data-tr-reviewed]").checked = false;
+      $("[data-tr-form]").hidden = true;
+      Toast.show("System", "Operación registrada");
+    });
+  }
+
+  /* =========================================================
      Menú de secciones
      ========================================================= */
   var SECTIONS = [
     { view: "bosses", name: "Bosses", desc: "Problemas grandes divididos en tareas" },
     { view: "unlocks", name: "Skills y logros", desc: "Desbloqueos por progresión" },
+    { view: "analytics", name: "Análisis", desc: "XP, rangos, categorías y crecimiento" },
+    { view: "finance", name: "Finanzas", desc: "Ahorro, inversión, patrimonio y milestones" },
+    { view: "trading", name: "Trading", desc: "Journal y disciplina de riesgo" },
     { view: "history", name: "Historial", desc: "Todas las acciones registradas" }
   ];
 
@@ -1043,6 +1516,9 @@
     else if (current === "quests") renderQuests();
     else if (current === "bosses") renderBosses();
     else if (current === "unlocks") renderUnlocks();
+    else if (current === "analytics") renderAnalytics();
+    else if (current === "finance") renderFinance();
+    else if (current === "trading") renderTrading();
     else if (current === "more") renderMenu();
     else if (current === "log") {
       renderCats();
@@ -1057,6 +1533,8 @@
     renderFilter();
     initQuestForm();
     initBossForm();
+    initFinance();
+    initTrading();
     P.check();
 
     $$("[data-go]").forEach(function (b) {

@@ -183,6 +183,29 @@
     ]
   };
 
+  /* ---------- Finanzas ----------
+     Milestones sobre el patrimonio (ahorro + inversión). Al cruzar uno
+     se concede XP una sola vez.                                       */
+  var FINANCE = {
+    currency: "€",
+    milestones: [1000, 5000, 10000, 25000, 50000, 100000],
+    types: [
+      { id: "saving",     label: "Ahorro",    action: "saved",    sign: 1,  worth: true },
+      { id: "investment", label: "Inversión", action: "invested", sign: 1,  worth: true },
+      { id: "income",     label: "Ingreso",   action: "income",   sign: 1,  worth: false },
+      { id: "expense",    label: "Gasto",     action: null,       sign: -1, worth: false }
+    ]
+  };
+
+  /* ---------- Trading ----------
+     El XP premia proceso, nunca resultado ni riesgo. Un journal con las
+     reglas respetadas puntúa; incumplirlas resta.                     */
+  var TRADING = {
+    xp: { journal: "journal", rulesOk: "rules_ok", rulesBroken: "rules_broken" },
+    results: ["WIN", "LOSS", "BREAKEVEN"],
+    emotions: ["CALMA", "DUDA", "FOMO", "FRUSTRACIÓN", "EUFORIA"]
+  };
+
   /* ---------- Reglas de desbloqueo ----------
      Declarativas: las evalúa progress.js. Tipos disponibles:
        level        → nivel mínimo
@@ -266,6 +289,8 @@
     DIFFICULTY_XP: DIFFICULTY_XP,
     BOSS_MULTIPLIER: BOSS_MULTIPLIER,
     BOSSES: BOSSES,
+    FINANCE: FINANCE,
+    TRADING: TRADING,
     ACHIEVEMENTS: ACHIEVEMENTS,
     SKILLS: SKILLS,
     LEVELS: LEVELS,
