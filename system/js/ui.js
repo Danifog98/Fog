@@ -62,6 +62,44 @@
     return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
   }
 
+  var reduced =
+    global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Contador animado: solo cuando el valor cambia, y nunca si el
+     sistema pide menos movimiento. */
+  var lastValues = {};
+
+  function setNumber(sel, value, format) {
+    var node = $(sel);
+    if (!node) return;
+    var fmt = format || num;
+    var prev = lastValues[sel];
+    lastValues[sel] = value;
+
+    if (reduced || prev === undefined || prev === value) {
+      node.textContent = fmt(value);
+      return;
+    }
+
+    var from = prev;
+    var start = 0;
+    var span = 420;
+    node.classList.remove("tick");
+    /* reflow para poder repetir la animación */
+    void node.offsetWidth;
+    node.classList.add("tick");
+
+    function frame(ts) {
+      if (!start) start = ts;
+      var t = Math.min(1, (ts - start) / span);
+      var eased = 1 - Math.pow(1 - t, 3);
+      node.textContent = fmt(from + (value - from) * eased);
+      if (t < 1) global.requestAnimationFrame(frame);
+      else node.textContent = fmt(value);
+    }
+    global.requestAnimationFrame(frame);
+  }
+
   /* =========================================================
      Notificaciones
      ========================================================= */
@@ -102,7 +140,11 @@
         node.hidden = true;
         Flash.busy = false;
         node.removeEventListener("click", close);
-        global.setTimeout(Flash.next, 120);
+        global.setTimeout(function () {
+          Flash.next();
+          /* Al terminar la cola de avisos se vuelve al estado. */
+          if (!Flash.busy && !Flash.queue.length && current !== "dashboard") go("dashboard");
+        }, 120);
       };
       node.addEventListener("click", close);
       global.setTimeout(close, 1900);
@@ -158,17 +200,17 @@
     rank.textContent = s.rank;
     rank.setAttribute("data-len", String(s.rank.length));
 
-    $("[data-xp-into]").textContent = num(s.level.xpInto);
+    setNumber("[data-xp-into]", s.level.xpInto);
     $("[data-xp-needed]").textContent = s.level.max ? "MAX" : num(s.level.xpNeeded);
     $("[data-xp-next]").textContent = s.level.max
       ? "NIVEL MÁXIMO"
       : num(s.level.xpToNext) + " XP para el nivel " + (s.level.level + 1);
     $("[data-xp-bar]").style.width = s.level.pct + "%";
 
-    $("[data-power]").textContent = num(s.power);
-    $("[data-xp-total]").textContent = num(s.totalXP);
-    $("[data-xp-today]").textContent = signed(s.today);
-    $("[data-xp-week]").textContent = signed(s.week);
+    setNumber("[data-power]", s.power);
+    setNumber("[data-xp-total]", s.totalXP);
+    setNumber("[data-xp-today]", s.today, signed);
+    setNumber("[data-xp-week]", s.week, signed);
     $("[data-month-xp]").textContent = signed(s.month) + " este mes";
 
     $("[data-rank-next]").textContent = s.nextRank

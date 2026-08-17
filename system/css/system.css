@@ -44,6 +44,12 @@
   box-sizing: border-box;
 }
 
+button,
+.menu__item,
+.chip {
+  -webkit-tap-highlight-color: transparent;
+}
+
 html,
 body {
   margin: 0;
@@ -1013,6 +1019,10 @@ select {
   box-shadow: 0 0 10px var(--accent);
 }
 
+.nav__btn--extra {
+  display: none;
+}
+
 /* ---------- Vistas ---------- */
 .view[hidden] {
   display: none;
@@ -1169,32 +1179,112 @@ select {
 }
 
 @media (min-width: 1020px) {
+  :root {
+    --side: 232px;
+  }
+
   body {
     padding-bottom: 40px;
   }
+
   .stats {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  /* La navegación pasa a barra lateral: no es el móvil estirado. */
   .nav {
-    position: sticky;
     top: 0;
-    bottom: auto;
-    border-top: 0;
-    border-bottom: 1px solid var(--line);
-    max-width: 1180px;
-    margin: 0 auto;
-    border-radius: 0 0 var(--r) var(--r);
-  }
-  .nav__btn {
-    flex-direction: row;
-    gap: 8px;
-    font-size: 10px;
-    padding: 14px 6px;
-  }
-  .nav__btn[aria-current="true"]::before {
-    top: auto;
     bottom: 0;
-    border-radius: 3px 3px 0 0;
+    right: auto;
+    width: var(--side);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 2px;
+    padding: 86px 14px 20px;
+    border-top: 0;
+    border-right: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(10, 13, 20, 0.9), rgba(5, 6, 10, 0.9));
+  }
+
+  /* Marca del sistema sobre la barra lateral. */
+  .nav::before {
+    content: "DANI SYSTEM";
+    position: absolute;
+    top: 38px;
+    left: 20px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .nav__btn,
+  .nav__btn--extra {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    padding: 12px 14px;
+    border-radius: var(--r-sm);
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .nav__btn:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .nav__btn[aria-current="true"] {
+    background: rgba(127, 233, 255, 0.09);
+  }
+
+  .nav__btn[aria-current="true"]::before {
+    top: 50%;
+    left: 0;
+    width: 2px;
+    height: 20px;
+    transform: translateY(-50%);
+    border-radius: 0 3px 3px 0;
+  }
+
+  .app {
+    margin-left: var(--side);
+    max-width: 1080px;
+    padding: 0 40px;
+  }
+
+  /* En escritorio las secciones ya están en la barra lateral. */
+  [data-go="more"].ghost-btn {
+    display: none;
+  }
+
+  .unlocks {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .kpis {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  /* Estado: HUD y stats en dos columnas para no dejar el ancho vacío. */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+
+  .dash-grid .stats {
+    grid-template-columns: 1fr;
+  }
+
+  /* La cabecera de stats se alinea con el HUD, sin doble margen. */
+  .dash-grid__head {
+    margin-top: 0;
   }
 }
 
@@ -1832,4 +1922,36 @@ select {
   padding: 10px 12px;
   font-size: 10px;
   letter-spacing: 0.16em;
+}
+
+/* ---------- Microinteracciones ---------- */
+.chip:active,
+.menu__item:active,
+.nav__btn:active {
+  transform: scale(0.97);
+}
+
+.card,
+.quest,
+.boss,
+.unlock,
+.alert {
+  transition: border-color 0.25s var(--ease), transform 0.25s var(--ease);
+}
+
+.quest:active,
+.alert:active {
+  transform: scale(0.995);
+}
+
+/* Contador de XP en movimiento */
+.tick {
+  animation: tick 0.4s var(--ease);
+}
+
+@keyframes tick {
+  40% {
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
 }
