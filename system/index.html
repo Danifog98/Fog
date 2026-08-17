@@ -30,13 +30,13 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
         Registrar
       </button>
-      <button class="nav__btn" type="button" data-go="history">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-        Historial
-      </button>
-      <button class="nav__btn nav__btn--extra" type="button" data-go="bosses">
+      <button class="nav__btn" type="button" data-go="bosses">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 4v6c0 4-3 6.5-7 8-4-1.5-7-4-7-8V7l7-4Z"/><path d="M9.5 10.5h.01M14.5 10.5h.01M9 15c1.8 1.2 4.2 1.2 6 0"/></svg>
         Bosses
+      </button>
+      <button class="nav__btn nav__btn--extra" type="button" data-go="history">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Historial
       </button>
       <button class="nav__btn nav__btn--extra" type="button" data-go="unlocks">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 5.2 5.6.7-4.1 3.9 1 5.6-4.9-2.8-4.9 2.8 1-5.6L4 8.9l5.6-.7L12 3Z"/></svg>
@@ -54,7 +54,21 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-6 4 3 4-6 5 4"/><path d="M3 21h18"/></svg>
         Trading
       </button>
+      <button class="nav__btn nav__btn--more" type="button" data-go="more">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>
+        Más
+      </button>
     </nav>
+
+    <div class="lock" data-lock hidden>
+      <div class="lock__panel">
+        <p class="lock__kicker">Dani System</p>
+        <h1 class="lock__title" data-lock-title>Introduce tu PIN</h1>
+        <div class="lock__dots" data-lock-dots aria-hidden="true"></div>
+        <p class="lock__msg" data-lock-msg role="status"></p>
+        <div class="keypad" data-keypad></div>
+      </div>
+    </div>
 
     <main class="app">
       <div class="topbar">
@@ -65,7 +79,7 @@
             <span class="topbar__state">System online</span>
           </span>
         </div>
-        <button class="ghost-btn" type="button" data-go="more">Secciones</button>
+        <button class="ghost-btn" type="button" data-lock-now hidden>Bloquear</button>
       </div>
 
       <!-- ============ ESTADO ============ -->
@@ -437,6 +451,60 @@
         <div data-tr-list></div>
       </section>
 
+      <!-- ============ AJUSTES ============ -->
+      <section class="view" data-view="settings" hidden>
+        <div class="section-head" style="margin-top:14px">
+          <p class="label">Bloqueo por PIN</p>
+          <p class="label" data-pin-state></p>
+        </div>
+        <div class="card">
+          <p class="form-hint" style="margin-top:0">
+            El PIN impide que se abra el sistema desde el navegador de otra
+            persona. No cifra los datos: siguen guardados en este dispositivo.
+          </p>
+          <div data-pin-off>
+            <div class="row-2">
+              <label class="field">
+                <span>PIN nuevo (4–8 dígitos)</span>
+                <input data-pin-new type="password" inputmode="numeric" autocomplete="off" />
+              </label>
+              <label class="field">
+                <span>Repetir PIN</span>
+                <input data-pin-rep type="password" inputmode="numeric" autocomplete="off" />
+              </label>
+            </div>
+            <button class="btn" type="button" data-pin-set style="margin-top:14px">Activar PIN</button>
+          </div>
+          <div data-pin-on hidden>
+            <label class="field" style="margin-top:0">
+              <span>PIN actual</span>
+              <input data-pin-current type="password" inputmode="numeric" autocomplete="off" />
+            </label>
+            <div class="row-2" style="margin-top:14px">
+              <button class="btn btn--ghost" type="button" data-pin-lock>Bloquear ahora</button>
+              <button class="btn btn--danger" type="button" data-pin-remove>Quitar PIN</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <p class="label">Datos</p>
+          <p class="label" data-data-size></p>
+        </div>
+        <div class="card">
+          <p class="form-hint" style="margin-top:0">
+            Todo vive en este navegador. Si borras los datos del sitio o cambias
+            de móvil, se pierde: exporta de vez en cuando.
+          </p>
+          <div class="row-2" style="margin-top:14px">
+            <button class="btn btn--ghost" type="button" data-export>Exportar copia</button>
+            <button class="btn btn--ghost" type="button" data-import>Importar copia</button>
+          </div>
+          <input data-import-file type="file" accept="application/json" hidden />
+          <button class="btn btn--danger" type="button" data-reset style="margin-top:10px">Borrar todo</button>
+        </div>
+      </section>
+
       <!-- ============ HISTORIAL ============ -->
       <section class="view" data-view="history" hidden>
         <div class="section-head" style="margin-top:14px">
@@ -465,6 +533,7 @@
 
     <script src="js/config.js"></script>
     <script src="js/store.js"></script>
+    <script src="js/lock.js"></script>
     <script src="js/engine.js"></script>
     <script src="js/quests.js"></script>
     <script src="js/bosses.js"></script>

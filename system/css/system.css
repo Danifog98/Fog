@@ -1257,8 +1257,8 @@ select {
     padding: 0 40px;
   }
 
-  /* En escritorio las secciones ya están en la barra lateral. */
-  [data-go="more"].ghost-btn {
+  /* En escritorio la barra lateral ya lo tiene todo. */
+  .nav__btn--more {
     display: none;
   }
 
@@ -1954,4 +1954,120 @@ select {
     color: var(--accent);
     transform: translateY(-2px);
   }
+}
+
+/* ---------- Pantalla de bloqueo ---------- */
+.lock {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(70% 50% at 50% 0%, rgba(127, 233, 255, 0.1), transparent 70%),
+    var(--bg);
+}
+
+.lock[hidden] {
+  display: none;
+}
+
+.lock__panel {
+  width: 100%;
+  max-width: 330px;
+  text-align: center;
+}
+
+.lock__kicker {
+  font-size: 10px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0;
+}
+
+.lock__title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 12px 0 0;
+}
+
+.lock__dots {
+  display: flex;
+  justify-content: center;
+  gap: 11px;
+  margin: 26px 0 6px;
+  min-height: 13px;
+}
+
+.lock__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+}
+
+.lock__dot--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(127, 233, 255, 0.5);
+}
+
+.lock__msg {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bad);
+  font-weight: 600;
+  min-height: 16px;
+  margin: 6px 0 0;
+}
+
+.lock--wrong .lock__panel {
+  animation: shake 0.32s var(--ease);
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-7px);
+  }
+  75% {
+    transform: translateX(7px);
+  }
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.key {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text);
+  border-radius: var(--r-sm);
+  font: inherit;
+  font-size: 21px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 17px 0;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s var(--ease);
+}
+
+.key:active {
+  transform: scale(0.95);
+  background: rgba(127, 233, 255, 0.16);
+}
+
+.key--fn {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  font-weight: 700;
 }

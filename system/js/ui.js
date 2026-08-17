@@ -16,6 +16,7 @@
   var F = global.DS.finance;
   var T = global.DS.trading;
   var R = global.DS.recommend;
+  var L = global.DS.lock;
 
   function $(s, c) {
     return (c || document).querySelector(s);
@@ -1261,15 +1262,213 @@
   }
 
   /* =========================================================
+     Bloqueo por PIN
+     ========================================================= */
+  var entered = "";
+
+  function renderDots() {
+    var host = $("[data-lock-dots]");
+    host.textContent = "";
+    var total = Math.max(L.pinLength(), entered.length);
+    for (var i = 0; i < total; i++) {
+      host.appendChild(el("i", "lock__dot" + (i < entered.length ? " lock__dot--on" : "")));
+    }
+  }
+
+  function lockMessage(text) {
+    $("[data-lock-msg]").textContent = text || "";
+  }
+
+  function submitPin() {
+    var pin = entered;
+    entered = "";
+    renderDots();
+    L.verify(pin).then(function (ok) {
+      if (ok) {
+        L.markUnlocked();
+        lockMessage("");
+        showApp();
+        return;
+      }
+      var node = $("[data-lock]");
+      node.className = "lock lock--wrong";
+      lockMessage("PIN incorrecto");
+      global.setTimeout(function () {
+        node.className = "lock";
+      }, 340);
+    });
+  }
+
+  function pressKey(k) {
+    if (k === "del") entered = entered.slice(0, -1);
+    else if (k === "ok") {
+      if (entered.length >= L.MIN) submitPin();
+      return;
+    } else if (entered.length < L.MAX) entered += k;
+
+    renderDots();
+    lockMessage("");
+    /* Con la longitud guardada se valida sin pulsar nada más. */
+    if (entered.length === L.pinLength()) submitPin();
+  }
+
+  function initKeypad() {
+    var host = $("[data-keypad]");
+    host.textContent = "";
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "del", "0", "ok"].forEach(function (k) {
+      var b = el("button", "key" + (k === "del" || k === "ok" ? " key--fn" : ""));
+      b.type = "button";
+      b.textContent = k === "del" ? "Borrar" : k === "ok" ? "Entrar" : k;
+      b.setAttribute("aria-label", k === "del" ? "Borrar" : k === "ok" ? "Entrar" : "Dígito " + k);
+      b.addEventListener("click", function () {
+        pressKey(k);
+      });
+      host.appendChild(b);
+    });
+
+    document.addEventListener("keydown", function (ev) {
+      if ($("[data-lock]").hidden) return;
+      if (/^[0-9]$/.test(ev.key)) pressKey(ev.key);
+      else if (ev.key === "Backspace") pressKey("del");
+      else if (ev.key === "Enter") pressKey("ok");
+    });
+  }
+
+  function showLock() {
+    $("[data-lock]").hidden = false;
+    $(".app").hidden = true;
+    $(".nav").hidden = true;
+    entered = "";
+    renderDots();
+  }
+
+  function showApp() {
+    $("[data-lock]").hidden = true;
+    $(".app").hidden = false;
+    $(".nav").hidden = false;
+    $("[data-lock-now]").hidden = !L.isEnabled();
+    render();
+  }
+
+  /* =========================================================
+     Ajustes
+     ========================================================= */
+  function renderSettings() {
+    var on = L.isEnabled();
+    $("[data-pin-state]").textContent = on ? "activo" : "sin PIN";
+    $("[data-pin-off]").hidden = on;
+    $("[data-pin-on]").hidden = !on;
+    $("[data-lock-now]").hidden = !on;
+
+    var bytes = 0;
+    try {
+      bytes = (global.localStorage.getItem(store.KEY) || "").length;
+    } catch (e) {}
+    $("[data-data-size]").textContent = Math.max(1, Math.round(bytes / 1024)) + " KB";
+  }
+
+  function initSettings() {
+    $("[data-pin-set]").addEventListener("click", function () {
+      var a = $("[data-pin-new]").value.trim();
+      var b = $("[data-pin-rep]").value.trim();
+      if (a !== b) {
+        Toast.show("System", "Los dos PIN no coinciden");
+        return;
+      }
+      if (!L.validPin(a)) {
+        Toast.show("System", "El PIN debe tener entre " + L.MIN + " y " + L.MAX + " dígitos");
+        return;
+      }
+      L.setPin(a).then(function (res) {
+        if (!res.ok) {
+          Toast.show("System", "PIN no válido");
+          return;
+        }
+        $("[data-pin-new]").value = "";
+        $("[data-pin-rep]").value = "";
+        Toast.show("System", "PIN activado");
+      });
+    });
+
+    $("[data-pin-remove]").addEventListener("click", function () {
+      var pin = $("[data-pin-current]").value.trim();
+      L.removePin(pin).then(function (res) {
+        $("[data-pin-current]").value = "";
+        Toast.show("System", res.ok ? "PIN desactivado" : "PIN incorrecto");
+      });
+    });
+
+    $("[data-pin-lock]").addEventListener("click", function () {
+      L.lockNow();
+      showLock();
+    });
+
+    $("[data-lock-now]").addEventListener("click", function () {
+      L.lockNow();
+      showLock();
+    });
+
+    /* Copia de seguridad: los datos solo existen aquí. */
+    $("[data-export]").addEventListener("click", function () {
+      var blob = new global.Blob([JSON.stringify(store.get(), null, 2)], {
+        type: "application/json"
+      });
+      var url = global.URL.createObjectURL(blob);
+      var a = el("a");
+      a.href = url;
+      a.download = "dani-system-" + E.dayKey(Date.now()) + ".json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      global.setTimeout(function () {
+        global.URL.revokeObjectURL(url);
+      }, 1000);
+      Toast.show("System", "Copia exportada");
+    });
+
+    $("[data-import]").addEventListener("click", function () {
+      $("[data-import-file]").click();
+    });
+
+    $("[data-import-file]").addEventListener("change", function (ev) {
+      var file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      var reader = new global.FileReader();
+      reader.onload = function () {
+        try {
+          var data = JSON.parse(reader.result);
+          if (!data || !Array.isArray(data.xp)) throw new Error("formato");
+          if (!global.confirm("Esto reemplaza los datos actuales. ¿Continuar?")) return;
+          store.replace(data);
+          Q.rollover();
+          P.check();
+          Toast.show("System", "Copia importada");
+        } catch (e) {
+          Toast.show("System", "Archivo no válido");
+        }
+        ev.target.value = "";
+      };
+      reader.readAsText(file);
+    });
+
+    $("[data-reset]").addEventListener("click", function () {
+      if (!global.confirm("¿Borrar TODO el progreso? No hay vuelta atrás.")) return;
+      store.reset();
+      Toast.show("System", "Sistema reiniciado");
+      go("dashboard");
+    });
+  }
+
+  /* =========================================================
      Menú de secciones
      ========================================================= */
   var SECTIONS = [
-    { view: "bosses", name: "Bosses", desc: "Problemas grandes divididos en tareas" },
+    { view: "history", name: "Historial", desc: "Todas las acciones registradas" },
     { view: "unlocks", name: "Skills y logros", desc: "Desbloqueos por progresión" },
     { view: "analytics", name: "Análisis", desc: "XP, rangos, categorías y crecimiento" },
     { view: "finance", name: "Finanzas", desc: "Ahorro, inversión, patrimonio y milestones" },
     { view: "trading", name: "Trading", desc: "Journal y disciplina de riesgo" },
-    { view: "history", name: "Historial", desc: "Todas las acciones registradas" }
+    { view: "settings", name: "Ajustes", desc: "PIN, copia de seguridad y datos" }
   ];
 
   function renderMenu() {
@@ -1562,6 +1761,7 @@
     else if (current === "finance") renderFinance();
     else if (current === "trading") renderTrading();
     else if (current === "more") renderMenu();
+    else if (current === "settings") renderSettings();
     else if (current === "log") {
       renderCats();
       renderActs();
@@ -1577,6 +1777,8 @@
     initBossForm();
     initFinance();
     initTrading();
+    initSettings();
+    initKeypad();
     P.check();
 
     $$("[data-go]").forEach(function (b) {
@@ -1589,7 +1791,11 @@
     store.subscribe(render);
 
     var hash = (global.location.hash || "").replace("#", "");
-    go($('[data-view="' + hash + '"]') ? hash : "dashboard");
+    current = $('[data-view="' + hash + '"]') ? hash : "dashboard";
+
+    if (L.isEnabled() && !L.isUnlocked()) showLock();
+    else showApp();
+    go(current);
   }
 
   global.DS.ui = { go: go, render: render, toast: Toast.show, flash: Flash.push };
