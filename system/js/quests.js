@@ -109,6 +109,8 @@
     if (!q) return { ok: false, reason: "missing" };
     if (q.status === STATUS.COMPLETED) return { ok: false, reason: "done" };
 
+    E.emit([{ type: "quest", title: q.title, xp: q.xp, questType: q.type }]);
+
     var res = E.awardXP({
       category: q.category,
       action: q.type === "weekly" ? "weekly_quest" : "daily_quest",
@@ -143,7 +145,6 @@
       });
     }
 
-    E.emit([{ type: "quest", title: q.title, xp: q.xp, questType: q.type }]);
     return { ok: true, quest: q, xp: res.ok ? res.tx.amount : 0 };
   }
 

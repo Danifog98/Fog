@@ -17,7 +17,7 @@
   <body>
     <div class="toasts" data-toasts aria-live="polite"></div>
 
-    <nav class="nav" aria-label="Secciones">
+    <nav class="nav" aria-label="Secciones principales">
       <button class="nav__btn" type="button" data-go="dashboard" aria-current="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg>
         Estado
@@ -40,9 +40,12 @@
       <div class="topbar">
         <div class="topbar__id">
           <span class="topbar__dot" aria-hidden="true"></span>
-          <span class="topbar__title">Dani System</span>
+          <span>
+            <span class="topbar__title">Dani System</span>
+            <span class="topbar__state">System online</span>
+          </span>
         </div>
-        <button class="ghost-btn" type="button" data-quick>+ Registrar</button>
+        <button class="ghost-btn" type="button" data-go="more">Secciones</button>
       </div>
 
       <!-- ============ ESTADO ============ -->
@@ -204,6 +207,71 @@
         </div>
       </section>
 
+      <!-- ============ BOSSES ============ -->
+      <section class="view" data-view="bosses" hidden>
+        <div class="section-head" style="margin-top:14px">
+          <p class="label">Bosses activos</p>
+          <button class="ghost-btn" type="button" data-boss-toggle>Crear</button>
+        </div>
+
+        <div class="card" data-boss-form hidden>
+          <label class="field" style="margin-top:0">
+            <span>Nombre del boss</span>
+            <input data-b-name placeholder="Web de FOG" />
+          </label>
+          <div class="row-2">
+            <label class="field">
+              <span>Categoría</span>
+              <select data-b-cat></select>
+            </label>
+            <label class="field">
+              <span>Dificultad</span>
+              <select data-b-diff></select>
+            </label>
+          </div>
+          <div class="row-2">
+            <label class="field">
+              <span>XP total</span>
+              <input data-b-xp type="number" inputmode="numeric" />
+            </label>
+            <label class="field">
+              <span>Descripción</span>
+              <input data-b-desc placeholder="Opcional" />
+            </label>
+          </div>
+          <label class="field">
+            <span>Tareas (una por línea)</span>
+            <textarea data-b-tasks placeholder="Corregir navegación&#10;Corregir checkout&#10;Probar pagos&#10;Lanzar"></textarea>
+          </label>
+          <button class="btn" type="button" data-b-save style="margin-top:14px">Crear boss</button>
+        </div>
+
+        <div data-boss-list></div>
+      </section>
+
+      <!-- ============ SKILLS Y LOGROS ============ -->
+      <section class="view" data-view="unlocks" hidden>
+        <div class="section-head" style="margin-top:14px">
+          <p class="label">Skills</p>
+          <p class="label" data-skills-count></p>
+        </div>
+        <div class="unlocks" data-skills></div>
+
+        <div class="section-head">
+          <p class="label">Logros</p>
+          <p class="label" data-ach-count></p>
+        </div>
+        <div class="unlocks" data-achievements></div>
+      </section>
+
+      <!-- ============ MÁS ============ -->
+      <section class="view" data-view="more" hidden>
+        <div class="section-head" style="margin-top:14px">
+          <p class="label">Secciones</p>
+        </div>
+        <div class="menu" data-menu></div>
+      </section>
+
       <!-- ============ HISTORIAL ============ -->
       <section class="view" data-view="history" hidden>
         <div class="section-head" style="margin-top:14px">
@@ -234,6 +302,8 @@
     <script src="js/store.js"></script>
     <script src="js/engine.js"></script>
     <script src="js/quests.js"></script>
+    <script src="js/bosses.js"></script>
+    <script src="js/progress.js"></script>
     <script src="js/ui.js"></script>
   </body>
 </html>

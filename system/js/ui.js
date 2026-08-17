@@ -11,6 +11,8 @@
   var store = global.DS.store;
   var E = global.DS.engine;
   var Q = global.DS.quests;
+  var B = global.DS.bosses;
+  var P = global.DS.progress;
 
   function $(s, c) {
     return (c || document).querySelector(s);
@@ -115,9 +117,28 @@
         Toast.show("System", (ev.questType === "weekly" ? "Weekly" : "Daily") + " completada · " + ev.title);
       } else if (ev.type === "rank") {
         Flash.push("Rank Up", ev.to, "Rank " + ev.from + " → " + ev.to);
+      } else if (ev.type === "boss") {
+        Flash.push("Boss Defeated", ev.name, signed(ev.xp) + " XP");
+      } else if (ev.type === "achievement") {
+        Toast.show("Logro desbloqueado", ev.name + " · " + ev.desc);
+      } else if (ev.type === "skill") {
+        Toast.show("Skill desbloqueada", ev.name + " · " + ev.desc);
       }
     });
   });
+
+  /* Estado vacío con acción: nunca datos de relleno. */
+  function emptyState(host, text, ctaText, onClick) {
+    var card = el("div", "card empty-card");
+    card.appendChild(el("p", "empty", text));
+    if (ctaText) {
+      var b = el("button", "btn btn--ghost empty-card__cta", ctaText);
+      b.type = "button";
+      b.addEventListener("click", onClick);
+      card.appendChild(b);
+    }
+    host.appendChild(card);
+  }
 
   /* =========================================================
      Dashboard
@@ -165,26 +186,39 @@
 
       var top = el("div", "stat__top");
       top.appendChild(el("p", "stat__name", st.stat));
-      top.appendChild(el("p", "stat__pct", pct1(st.mastery) + "%"));
+      top.appendChild(el("p", "stat__lv mono", "LV " + String(st.level).padStart(2, "0")));
       card.appendChild(top);
+
+      card.appendChild(
+        el(
+          "p",
+          "stat__xp mono",
+          st.levelNeeded
+            ? num(st.levelInto) + " / " + num(st.levelNeeded) + " XP"
+            : num(st.xp) + " XP"
+        )
+      );
 
       var bar = el("div", "stat__bar");
       var fill = el("i", "stat__fill");
-      fill.style.width = Math.max(st.mastery, st.mastery > 0 ? 1.5 : 0) + "%";
+      fill.style.width = (st.xp > 0 ? Math.max(2, st.levelPct) : 0) + "%";
       bar.appendChild(fill);
       card.appendChild(bar);
 
       var foot = el("div", "stat__foot");
-      foot.appendChild(el("span", null, "LV " + st.level + " · " + num(st.xp) + " XP"));
+      foot.appendChild(el("span", null, num(st.xp) + " XP · " + pct1(st.mastery) + "% dominio"));
 
       var right = el("span", null);
-      if (st.neglected && st.xp > 0) {
+      if (st.xp === 0) {
+        right.className = "delta--flat";
+        right.textContent = "SIN INICIAR";
+      } else if (st.neglected) {
         var tag = el("i", "tag-idle", st.daysIdle + "D SIN ACTIVIDAD");
         right.appendChild(tag);
       } else {
-        var arrow = st.trend === "up" ? "▲" : st.trend === "down" ? "▼" : "—";
-        right.className = "delta--" + st.trend;
-        right.textContent = arrow + " " + pct1(st.delta) + "% / 7D";
+        var arrow = st.growth > 0 ? "▲" : "—";
+        right.className = st.growth > 0 ? "delta--up" : "delta--flat";
+        right.textContent = arrow + " " + pct1(st.growth) + "% / 7D";
       }
       foot.appendChild(right);
       card.appendChild(foot);
@@ -224,17 +258,19 @@
     host.textContent = "";
 
     if (!a.snapshot.entries) {
-      host.appendChild(el("p", "empty", "Sin datos todavía · registra tu primera actividad"));
+      host.textContent = "";
+      var p = el("p", "empty", "Sin datos · registra tu primera acción");
+      host.appendChild(p);
       return;
     }
 
     var rows = [
-      ["Stat más fuerte", a.strongest ? a.strongest.stat + " · " + pct1(a.strongest.mastery) + "%" : "—"],
-      ["Stat más débil", a.weakest ? a.weakest.stat + " · " + pct1(a.weakest.mastery) + "%" : "—"],
+      ["Más fuerte", a.strongest ? a.strongest.stat + " · LV " + a.strongest.level : "—"],
+      ["Más débil", a.weakest ? a.weakest.stat + " · LV " + a.weakest.level : "—"],
       [
         "Mayor crecimiento",
-        a.fastest && a.fastest.delta > 0
-          ? a.fastest.stat + " · +" + pct1(a.fastest.delta) + "% / 7D"
+        a.fastest && a.fastest.growth > 0
+          ? a.fastest.stat + " · +" + pct1(a.fastest.growth) + "% / 7D"
           : "—"
       ],
       ["Problemas resueltos", num(a.problemsSolved) + " este mes"],
@@ -270,8 +306,10 @@
     });
 
     var qs = Q.questStats();
-    $("[data-quest-slots]").textContent =
-      qs.completedToday + "/" + (qs.completedToday + qs.activeToday) + " misiones hoy";
+    var todayTotal = qs.completedToday + qs.activeToday;
+    $("[data-quest-slots]").textContent = todayTotal
+      ? qs.completedToday + "/" + todayTotal + " misiones hoy"
+      : "sin misiones hoy";
   }
 
   /* =========================================================
@@ -360,9 +398,11 @@
   function renderQuestList(host, list, emptyText) {
     host.textContent = "";
     if (!list.length) {
-      var card = el("div", "card");
-      card.appendChild(el("p", "empty", emptyText));
-      host.appendChild(card);
+      emptyState(host, emptyText, "Crear quest", function () {
+        var f = $("[data-new-form]");
+        f.hidden = false;
+        $("[data-q-title]").focus();
+      });
       return;
     }
     var order = { ACTIVE: 0, COMPLETED: 1, SKIPPED: 2, FAILED: 3 };
@@ -466,6 +506,272 @@
       $("[data-q-recurring]").checked = false;
       $("[data-new-form]").hidden = true;
       Toast.show("System", "Quest creada · " + res.quest.title);
+    });
+  }
+
+  /* =========================================================
+     Bosses
+     ========================================================= */
+  function bossCard(b) {
+    var cat = C.category(b.category);
+    var pct = B.progress(b);
+    var done = b.status === B.STATUS.DEFEATED;
+
+    var card = el("div", "boss" + (done ? " boss--done" : ""));
+    card.style.setProperty("--h", cat ? cat.hue : 200);
+
+    var head = el("div", "boss__head");
+    var left = el("div");
+    left.appendChild(el("p", "boss__kicker", done ? "Boss derrotado" : "Boss"));
+    left.appendChild(el("p", "boss__name", b.name));
+    head.appendChild(left);
+    var threat = el("div", "boss__threat");
+    threat.appendChild(el("p", "boss__threat-k", "Amenaza"));
+    threat.appendChild(el("p", "boss__threat-v", b.difficulty));
+    head.appendChild(threat);
+    card.appendChild(head);
+
+    if (b.description) card.appendChild(el("p", "boss__desc", b.description));
+
+    var hp = el("div", "boss__hp");
+    var hpTop = el("div", "boss__hp-top");
+    hpTop.appendChild(el("span", "label", done ? "Derrotado" : "HP restante"));
+    hpTop.appendChild(el("span", "boss__hp-v mono", Math.round(done ? 0 : 100 - pct) + "%"));
+    hp.appendChild(hpTop);
+    var bar = el("div", "bar");
+    var fill = el("i", "bar__fill bar__fill--hp");
+    fill.style.width = (done ? 0 : 100 - pct) + "%";
+    bar.appendChild(fill);
+    hp.appendChild(bar);
+    card.appendChild(hp);
+
+    if (b.tasks.length) {
+      var list = el("div", "tasks");
+      b.tasks.forEach(function (t) {
+        var row = el("label", "task" + (t.done ? " task--done" : ""));
+        var cb = el("input");
+        cb.type = "checkbox";
+        cb.checked = t.done;
+        cb.disabled = done;
+        cb.addEventListener("change", function () {
+          B.completeBossTask(b.id, t.id, cb.checked);
+        });
+        row.appendChild(cb);
+        row.appendChild(el("span", "task__title", t.title));
+        if (!done) {
+          var x = el("button", "task__del", "✕");
+          x.type = "button";
+          x.setAttribute("aria-label", "Quitar tarea");
+          x.addEventListener("click", function (ev) {
+            ev.preventDefault();
+            B.removeTask(b.id, t.id);
+          });
+          row.appendChild(x);
+        }
+        list.appendChild(row);
+      });
+      card.appendChild(list);
+    }
+
+    var foot = el("div", "boss__foot");
+    foot.appendChild(el("span", "boss__reward mono", signed(b.xp) + " XP"));
+
+    var actions = el("div", "boss__actions");
+    if (!done) {
+      var add = el("button", "btn btn--ghost", "+ Tarea");
+      add.type = "button";
+      add.addEventListener("click", function () {
+        var title = global.prompt("Nueva tarea");
+        if (title) B.addTask(b.id, title);
+      });
+      actions.appendChild(add);
+
+      var kill = el("button", "btn", "Derrotar");
+      kill.type = "button";
+      kill.addEventListener("click", function () {
+        B.defeatBoss(b.id);
+      });
+      actions.appendChild(kill);
+    }
+    var del = el("button", "icon-x", "✕");
+    del.type = "button";
+    del.setAttribute("aria-label", "Eliminar boss");
+    del.addEventListener("click", function () {
+      if (!global.confirm("¿Eliminar el boss y su XP asociado?")) return;
+      B.deleteBoss(b.id);
+      Toast.show("System", "Boss eliminado");
+    });
+    actions.appendChild(del);
+    foot.appendChild(actions);
+    card.appendChild(foot);
+
+    return card;
+  }
+
+  function renderBosses() {
+    var host = $("[data-boss-list]");
+    host.textContent = "";
+    var list = B.all();
+
+    if (!list.length) {
+      emptyState(host, "Sin bosses activos", "Crear el primero", function () {
+        $("[data-boss-form]").hidden = false;
+        $("[data-b-name]").focus();
+      });
+      return;
+    }
+
+    var active = list.filter(function (b) {
+      return b.status !== B.STATUS.DEFEATED;
+    });
+    var dead = list.filter(function (b) {
+      return b.status === B.STATUS.DEFEATED;
+    });
+
+    if (active.length) {
+      active.forEach(function (b) {
+        host.appendChild(bossCard(b));
+      });
+    } else {
+      emptyState(host, "Sin bosses activos", "Crear boss", function () {
+        $("[data-boss-form]").hidden = false;
+        $("[data-b-name]").focus();
+      });
+    }
+
+    if (dead.length) {
+      var head = el("div", "section-head");
+      head.appendChild(el("p", "label", "Derrotados"));
+      head.appendChild(el("p", "label", dead.length + " en total"));
+      host.appendChild(head);
+      dead.forEach(function (b) {
+        host.appendChild(bossCard(b));
+      });
+    }
+  }
+
+  function initBossForm() {
+    var cat = $("[data-b-cat]");
+    C.CATEGORIES.forEach(function (c) {
+      var o = el("option", null, c.stat);
+      o.value = c.id;
+      cat.appendChild(o);
+    });
+
+    var diff = $("[data-b-diff]");
+    C.DIFFICULTIES.forEach(function (d) {
+      var o = el("option", null, d);
+      o.value = d;
+      if (d === "NORMAL") o.selected = true;
+      diff.appendChild(o);
+    });
+
+    function syncXP() {
+      $("[data-b-xp]").value = B.defaultXP(diff.value);
+    }
+    syncXP();
+    diff.addEventListener("change", syncXP);
+
+    $("[data-boss-toggle]").addEventListener("click", function () {
+      var f = $("[data-boss-form]");
+      f.hidden = !f.hidden;
+      if (!f.hidden) $("[data-b-name]").focus();
+    });
+
+    $("[data-b-save]").addEventListener("click", function () {
+      var tasks = $("[data-b-tasks]").value.split("\n");
+      var res = B.createBoss({
+        name: $("[data-b-name]").value,
+        description: $("[data-b-desc]").value,
+        category: cat.value,
+        difficulty: diff.value,
+        xp: $("[data-b-xp]").value,
+        tasks: tasks
+      });
+      if (!res.ok) {
+        Toast.show("System", res.reason === "name" ? "Falta el nombre" : "No se pudo crear el boss");
+        return;
+      }
+      $("[data-b-name]").value = "";
+      $("[data-b-desc]").value = "";
+      $("[data-b-tasks]").value = "";
+      $("[data-boss-form]").hidden = true;
+      Toast.show("System", "Boss creado · " + res.boss.name);
+    });
+  }
+
+  /* =========================================================
+     Skills y logros
+     ========================================================= */
+  function unlockCard(u) {
+    var card = el("div", "unlock" + (u.unlocked ? " unlock--on" : ""));
+    var top = el("div", "unlock__top");
+    top.appendChild(el("p", "unlock__name", u.name));
+    top.appendChild(el("p", "unlock__state", u.unlocked ? "DESBLOQUEADA" : "BLOQUEADA"));
+    card.appendChild(top);
+    card.appendChild(el("p", "unlock__desc", u.desc));
+
+    if (u.unlocked) {
+      card.appendChild(
+        el(
+          "p",
+          "unlock__meta",
+          (u.unlockedAt ? dayLabel(u.unlockedAt) + " · " : "") + (u.xp ? signed(u.xp) + " XP" : "")
+        )
+      );
+    } else {
+      var bar = el("div", "bar bar--thin");
+      var fill = el("i", "bar__fill");
+      fill.style.width = Math.round(u.progress * 100) + "%";
+      bar.appendChild(fill);
+      card.appendChild(bar);
+      card.appendChild(el("p", "unlock__meta", Math.round(u.progress * 100) + "% del requisito"));
+    }
+    return card;
+  }
+
+  function renderUnlocks() {
+    var c = P.counts();
+    var skills = $("[data-skills]");
+    var achs = $("[data-achievements]");
+    skills.textContent = "";
+    achs.textContent = "";
+
+    P.list("skill").forEach(function (u) {
+      skills.appendChild(unlockCard(u));
+    });
+    P.list("achievement").forEach(function (u) {
+      achs.appendChild(unlockCard(u));
+    });
+
+    $("[data-skills-count]").textContent = c.skills.unlocked + "/" + c.skills.total;
+    $("[data-ach-count]").textContent = c.achievements.unlocked + "/" + c.achievements.total;
+  }
+
+  /* =========================================================
+     Menú de secciones
+     ========================================================= */
+  var SECTIONS = [
+    { view: "bosses", name: "Bosses", desc: "Problemas grandes divididos en tareas" },
+    { view: "unlocks", name: "Skills y logros", desc: "Desbloqueos por progresión" },
+    { view: "history", name: "Historial", desc: "Todas las acciones registradas" }
+  ];
+
+  function renderMenu() {
+    var host = $("[data-menu]");
+    host.textContent = "";
+    SECTIONS.forEach(function (sec) {
+      var b = el("button", "menu__item");
+      b.type = "button";
+      var left = el("div");
+      left.appendChild(el("p", "menu__name", sec.name));
+      left.appendChild(el("p", "menu__desc", sec.desc));
+      b.appendChild(left);
+      b.appendChild(el("span", "menu__go", "→"));
+      b.addEventListener("click", function () {
+        go(sec.view);
+      });
+      host.appendChild(b);
     });
   }
 
@@ -655,9 +961,9 @@
       : "";
 
     if (!days.length) {
-      var card = el("div", "card");
-      card.appendChild(el("p", "empty", "Sin actividad registrada"));
-      host.appendChild(card);
+      emptyState(host, "Sin actividad registrada", "+ Registrar acción", function () {
+        go("log");
+      });
       return;
     }
 
@@ -735,6 +1041,9 @@
   function render() {
     if (current === "dashboard") renderDashboard();
     else if (current === "quests") renderQuests();
+    else if (current === "bosses") renderBosses();
+    else if (current === "unlocks") renderUnlocks();
+    else if (current === "more") renderMenu();
     else if (current === "log") {
       renderCats();
       renderActs();
@@ -747,14 +1056,13 @@
     Q.rollover();
     renderFilter();
     initQuestForm();
+    initBossForm();
+    P.check();
 
     $$("[data-go]").forEach(function (b) {
       b.addEventListener("click", function () {
         go(b.getAttribute("data-go"));
       });
-    });
-    $("[data-quick]").addEventListener("click", function () {
-      go("log");
     });
     $("[data-submit]").addEventListener("click", submitDraft);
 

@@ -97,8 +97,14 @@
     LEGENDARY: 1500
   };
 
-  /* Multiplicador de XP de un Boss según dificultad (fase 3). */
-  var BOSS_MULTIPLIER = { EASY: 3, NORMAL: 5, HARD: 8, EPIC: 12, LEGENDARY: 20 };
+  /* XP de un Boss = DIFFICULTY_XP · BOSS_MULTIPLIER. */
+  var BOSS_MULTIPLIER = { EASY: 2, NORMAL: 3, HARD: 4, EPIC: 5, LEGENDARY: 6 };
+
+  var BOSSES = {
+    /* Parte del XP que se reparte entre las tareas; el resto se cobra
+       al derrotar al boss. Desmarcar una tarea devuelve su XP. */
+    taskShare: 0.3
+  };
 
   /* ---------- Niveles ----------
      Umbrales manuales hasta 10; después, fórmula escalable:
@@ -135,10 +141,19 @@
     inactiveDays: 5     // días sin actividad = categoría abandonada
   };
 
-  /* ---------- Total Power ---------- */
+  /* ---------- Total Power ----------
+     Fórmula única y determinista (engine.snapshot):
+
+       mastery(cat) = min(100, XP(cat) / STATS.masteryXP · 100)
+       POWER        = Σ( peso(cat) · mastery(cat) ) · masteryScale
+                      + nivel · perLevel
+
+     Con los pesos sumando 1, Σ(peso · mastery) va de 0 a 100, así que
+     el término de stats aporta 0..10.000 y el nivel suma perLevel por
+     nivel. Cambiar un stat cambia el power; no hay números sueltos.   */
   var POWER = {
-    masteryScale: 100, // Σ(peso · mastery%) · 100  → 0..10000
-    perLevel: 25       // bonus por nivel
+    masteryScale: 100,
+    perLevel: 25
   };
 
   var LIMITS = {
@@ -167,6 +182,43 @@
       { id: "business",  label: "NEGOCIOS",     categories: ["business"] }
     ]
   };
+
+  /* ---------- Reglas de desbloqueo ----------
+     Declarativas: las evalúa progress.js. Tipos disponibles:
+       level        → nivel mínimo
+       rank         → rank mínimo (id)
+       power        → total power mínimo
+       quests       → nº de quests completadas
+       bosses       → nº de bosses derrotados
+       streak       → racha (id de STREAKS.tracked) mínima
+       catXP        → XP mínimo en una categoría
+       action       → nº de veces registrada una acción concreta
+       entries      → nº de registros en una categoría
+     `xp` es la recompensa opcional al desbloquear.                  */
+  var ACHIEVEMENTS = [
+    { id: "first_quest",  name: "FIRST BLOOD",         desc: "Completa tu primera quest",            xp: 100, rule: { type: "quests", value: 1 } },
+    { id: "iron_streak",  name: "CONSTANCIA DE HIERRO", desc: "7 días seguidos de actividad",         xp: 300, rule: { type: "streak", id: "daily", value: 7 } },
+    { id: "builder",      name: "BUILDER",             desc: "Termina tu primer proyecto técnico",   xp: 300, rule: { type: "action", category: "tech", action: "project_done", value: 1 } },
+    { id: "entrepreneur", name: "ENTREPRENEUR",        desc: "Consigue el primer cliente",           xp: 500, rule: { type: "action", category: "business", action: "first_client", value: 1 } },
+    { id: "boss_slayer",  name: "BOSS SLAYER",         desc: "Derrota tu primer boss",               xp: 300, rule: { type: "bosses", value: 1 } },
+    { id: "level_10",     name: "LEVEL 10",            desc: "Alcanza el nivel 10",                  xp: 500, rule: { type: "level", value: 10 } },
+    { id: "milestone",    name: "MILESTONE",           desc: "Primer milestone financiero",          xp: 300, rule: { type: "action", category: "wealth", action: "milestone", value: 1 } },
+    { id: "solver_10",    name: "SOLVER X10",          desc: "Resuelve 10 problemas reales",         xp: 400, rule: { type: "entries", category: "problems", value: 10 } },
+    { id: "rank_c",       name: "RANK C",              desc: "Alcanza el rank C",                    xp: 500, rule: { type: "rank", value: "C" } },
+    { id: "quests_50",    name: "OPERADOR",            desc: "Completa 50 quests",                   xp: 500, rule: { type: "quests", value: 50 } }
+  ];
+
+  var SKILLS = [
+    { id: "discipline_1",  name: "DISCIPLINA I",  desc: "5 días seguidos de actividad",        cat: "discipline", rule: { type: "streak", id: "daily", value: 5 } },
+    { id: "discipline_2",  name: "DISCIPLINA II", desc: "21 días seguidos de actividad",       cat: "discipline", rule: { type: "streak", id: "daily", value: 21 } },
+    { id: "focus_1",       name: "FOCUS I",       desc: "2.000 XP en tecnología",              cat: "tech",       rule: { type: "catXP", category: "tech", value: 2000 } },
+    { id: "tech_builder",  name: "TECH BUILDER",  desc: "Un proyecto técnico terminado",       cat: "tech",       rule: { type: "action", category: "tech", action: "project_done", value: 1 } },
+    { id: "entrepreneur_1", name: "ENTREPRENEUR I", desc: "3.000 XP en negocios",              cat: "business",   rule: { type: "catXP", category: "business", value: 3000 } },
+    { id: "risk_keeper",   name: "RISK KEEPER",   desc: "10 operaciones respetando las reglas", cat: "trading",    rule: { type: "action", category: "trading", action: "rules_ok", value: 10 } },
+    { id: "iron_body",     name: "IRON BODY",     desc: "5.000 XP en físico",                  cat: "physical",   rule: { type: "catXP", category: "physical", value: 5000 } },
+    { id: "boss_hunter",   name: "BOSS HUNTER",   desc: "3 bosses derrotados",                 cat: "problems",   rule: { type: "bosses", value: 3 } },
+    { id: "iron_mind",     name: "IRON MIND",     desc: "Alcanza el nivel 10",                 cat: "discipline", rule: { type: "level", value: 10 } }
+  ];
 
   /* ---------- Helpers de configuración ---------- */
   function category(id) {
@@ -213,6 +265,9 @@
     DIFFICULTIES: DIFFICULTIES,
     DIFFICULTY_XP: DIFFICULTY_XP,
     BOSS_MULTIPLIER: BOSS_MULTIPLIER,
+    BOSSES: BOSSES,
+    ACHIEVEMENTS: ACHIEVEMENTS,
+    SKILLS: SKILLS,
     LEVELS: LEVELS,
     LEVEL_FORMULA: LEVEL_FORMULA,
     RANKS: RANKS,

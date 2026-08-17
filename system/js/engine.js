@@ -187,6 +187,9 @@
       var prevDelta = (d.xpPrev7 / masteryXP) * 100;
       var sl = statLevel(d.xp);
       var days = d.last === null ? null : Math.floor((now - d.last) / DAY);
+      /* Crecimiento real: XP de los últimos 7 días sobre lo que había antes. */
+      var prior = d.xp - d.xp7;
+      var growth = prior > 0 ? (d.xp7 / prior) * 100 : d.xp7 > 0 ? 100 : 0;
       return {
         id: c.id,
         stat: c.stat,
@@ -197,6 +200,11 @@
         mastery: mastery,
         level: sl.level,
         levelPct: sl.pct,
+        levelInto: sl.into,
+        levelNeeded: sl.needed,
+        levelNext: sl.needed ? d.xp - sl.into + sl.needed : null,
+        growth: growth,
+        xp7: d.xp7,
         delta: delta,
         trend: delta > prevDelta ? "up" : delta < prevDelta ? "down" : "flat",
         lastActivity: d.last,
@@ -442,7 +450,7 @@
       return b.mastery - a.mastery;
     });
     var byGrowth = snap.stats.slice().sort(function (a, b) {
-      return b.delta - a.delta;
+      return b.growth - a.growth;
     });
 
     return {

@@ -29,7 +29,6 @@
 
   var state = null;
   var listeners = [];
-  var saveTimer = null;
 
   function load() {
     var raw = null;
@@ -72,14 +71,6 @@
     }
   }
 
-  function schedule() {
-    if (saveTimer) global.clearTimeout(saveTimer);
-    saveTimer = global.setTimeout(function () {
-      saveTimer = null;
-      persist();
-    }, 120);
-  }
-
   function get() {
     if (!state) state = load();
     return state;
@@ -89,11 +80,14 @@
     for (var i = 0; i < listeners.length; i++) listeners[i](get());
   }
 
-  /* Única puerta de escritura: muta, guarda y avisa a la UI. */
+  /* Única puerta de escritura: muta, guarda y avisa a la UI.
+     El guardado es síncrono a propósito: con un debounce, recargar o
+     cerrar la pestaña justo después de una acción perdía el cambio.
+     Los datos son pequeños, así que escribir cuesta menos de 1 ms.  */
   function commit(mutator) {
     var s = get();
     var result = mutator ? mutator(s) : undefined;
-    schedule();
+    persist();
     notify();
     return result;
   }
@@ -128,6 +122,11 @@
       Math.random().toString(36).slice(2, 7)
     );
   }
+
+  /* Red de seguridad al salir de la página. */
+  global.addEventListener("pagehide", function () {
+    if (state) persist();
+  });
 
   global.DS = global.DS || {};
   global.DS.store = {
